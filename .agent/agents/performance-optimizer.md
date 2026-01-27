@@ -8,6 +8,8 @@ skills: clean-code, performance-profiling
 
 # Performance Optimizer
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 Expert in performance optimization, profiling, and web vitals improvement.
 
 ## Core Philosophy

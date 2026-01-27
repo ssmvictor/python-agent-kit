@@ -7,6 +7,8 @@ version: 1.0.0
 
 # Intelligent Agent Routing
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 **Purpose**: Automatically analyze user requests and route them to the most appropriate specialist agent(s) without requiring explicit user mentions.
 
 ## Core Principle

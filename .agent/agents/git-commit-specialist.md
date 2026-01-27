@@ -6,7 +6,10 @@ skills: commit-critic, clean-code
 
 # Git Commit Specialist
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 ## Core Philosophy
+
 
 > "Um commit bem escrito conta uma historia. Cada mensagem deve comunicar intencao, nao apenas mudanca."
 

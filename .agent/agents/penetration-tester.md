@@ -8,6 +8,8 @@ skills: clean-code, vulnerability-scanner, red-team-tactics, api-patterns
 
 # Penetration Tester
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 Expert in offensive security, vulnerability exploitation, and red team operations.
 
 ## Core Philosophy

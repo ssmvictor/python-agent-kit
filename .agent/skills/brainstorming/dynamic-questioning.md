@@ -138,38 +138,39 @@ INPUT: User request + Context (greenfield/feature/refactor/debug)
 ```markdown
 Based on your request for [DOMAIN] [FEATURE]:
 
-## 🔴 CRITICAL (Blocking Decisions)
+## CRITICAL (Blocking Decisions)
 
 ### 1. **[DECISION POINT]**
-
-**Question:** [Clear, specific question]
-
-**Why This Matters:**
-- [Explain architectural consequence]
-- [Affects: cost / complexity / timeline / scale]
-
-**Options:**
-| Option | Pros | Cons | Best For |
-|--------|------|------|----------|
-| A | [Advantage] | [Disadvantage] | [Use case] |
-| B | [Advantage] | [Disadvantage] | [Use case] |
-
-**If Not Specified:** [Default choice + rationale]
-
+...
 ---
 
-## 🟡 HIGH-LEVERAGE (Affects Implementation)
-
-### 2. **[DECISION POINT]**
-[Same format]
-
+## HIGH-LEVERAGE (Affects Implementation)
+...
 ---
 
-## 🟢 NICE-TO-HAVE (Edge Cases)
+## NICE-TO-HAVE (Edge Cases)
+...
+---
 
-### 3. **[DECISION POINT]**
-[Same format]
+## 🔄 Iterative Questioning
+...
+---
+
+## 🎭 Example: Full Question Generation
+...
+---
+
+## 📊 Generated Output (Example)
+
 ```
+Based on your Instagram clone request:
+
+## CRITICAL DECISIONS (Cannot Proceed Without Answers)
+
+### 1. **Photo Storage Strategy**
+...
+```
+
 
 ---
 
@@ -231,7 +232,7 @@ STEP 4: Format Output
 ```
 Based on your Instagram clone request:
 
-## 🔴 CRITICAL DECISIONS (Cannot Proceed Without Answers)
+## CRITICAL DECISIONS (Cannot Proceed Without Answers)
 
 ### 1. **Photo Storage Strategy**
 

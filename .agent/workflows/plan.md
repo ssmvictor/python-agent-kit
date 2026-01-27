@@ -4,11 +4,13 @@ description: Create project plan using project-planner agent. No code writing - 
 
 # /plan - Project Planning Mode
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 $ARGUMENTS
 
 ---
 
-## 🔴 CRITICAL RULES
+## CRITICAL RULES
 
 1. **NO CODE WRITING** - This command creates plan file only
 2. **Use project-planner agent** - NOT Antigravity Agent's native Plan mode

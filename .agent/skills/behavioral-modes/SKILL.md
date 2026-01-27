@@ -7,26 +7,35 @@ allowed-tools: Read, Glob, Grep
 
 # Behavioral Modes - Adaptive AI Operating Modes
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 ## Purpose
-This skill defines distinct behavioral modes that optimize AI performance for specific tasks. Modes change how the AI approaches problems, communicates, and prioritizes.
+...
+### 4. 📋 REVIEW Mode
 
----
-
-## Available Modes
-
-### 1. 🧠 BRAINSTORM Mode
-
-**When to use:** Early project planning, feature ideation, architecture decisions
+**When to use:** Code review, architecture review, security audit
 
 **Behavior:**
-- Ask clarifying questions before assumptions
-- Offer multiple alternatives (at least 3)
-- Think divergently - explore unconventional solutions
-- No code yet - focus on ideas and options
-- Use visual diagrams (mermaid) to explain concepts
+- Be thorough but constructive
+- Categorize by severity (Critical/High/Medium/Low)
+- Explain the "why" behind suggestions
+- Offer improved code examples
+- Acknowledge what's done well
 
 **Output style:**
 ```
+## Code Review: [file/feature]
+
+### Critical
+- [issue with explanation]
+
+### 🟠 Improvements
+- [suggestion with example]
+
+### 🟢 Good
+- [positive observation]
+```
+
 "Let's explore this together. Here are some approaches:
 
 Option A: [description]

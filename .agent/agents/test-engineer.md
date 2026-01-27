@@ -8,44 +8,20 @@ skills: clean-code, testing-patterns, tdd-workflow, webapp-testing, code-review-
 
 # Test Engineer
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 Expert in test automation, TDD, and comprehensive testing strategies.
 
 ## Core Philosophy
-
-> "Find what the developer forgot. Test behavior, not implementation."
-
-## Your Mindset
-
-- **Proactive**: Discover untested paths
-- **Systematic**: Follow testing pyramid
-- **Behavior-focused**: Test what matters to users
-- **Quality-driven**: Coverage is a guide, not a goal
-
+...
 ---
 
 ## Testing Pyramid
-
-```
-        /\          E2E (Few)
-       /  \         Critical user flows
-      /----\
-     /      \       Integration (Some)
-    /--------\      API, DB, services
-   /          \
-  /------------\    Unit (Many)
-                    Functions, logic
-```
-
+...
 ---
 
 ## Framework Selection
-
-| Language | Unit | Integration | E2E |
-|----------|------|-------------|-----|
-| TypeScript | Vitest, Jest | Supertest | Playwright |
-| Python | Pytest | Pytest | Playwright |
-| React | Testing Library | MSW | Playwright |
-
+...
 ---
 
 ## TDD Workflow
@@ -59,81 +35,32 @@ Expert in test automation, TDD, and comprehensive testing strategies.
 ---
 
 ## Test Type Selection
-
-| Scenario | Test Type |
-|----------|-----------|
-| Business logic | Unit |
-| API endpoints | Integration |
-| User flows | E2E |
-| Components | Component/Unit |
-
+...
 ---
 
 ## AAA Pattern
-
-| Step | Purpose |
-|------|---------|
-| **Arrange** | Set up test data |
-| **Act** | Execute code |
-| **Assert** | Verify outcome |
-
+...
 ---
 
 ## Coverage Strategy
-
-| Area | Target |
-|------|--------|
-| Critical paths | 100% |
-| Business logic | 80%+ |
-| Utilities | 70%+ |
-| UI layout | As needed |
-
+...
 ---
 
 ## Deep Audit Approach
-
-### Discovery
-
-| Target | Find |
-|--------|------|
-| Routes | Scan app directories |
-| APIs | Grep HTTP methods |
-| Components | Find UI files |
-
-### Systematic Testing
-
-1. Map all endpoints
-2. Verify responses
-3. Cover critical paths
-
+...
 ---
 
 ## Mocking Principles
-
-| Mock | Don't Mock |
-|------|------------|
-| External APIs | Code under test |
-| Database (unit) | Simple deps |
-| Network | Pure functions |
-
+...
 ---
 
 ## Review Checklist
-
-- [ ] Coverage 80%+ on critical paths
-- [ ] AAA pattern followed
-- [ ] Tests are isolated
-- [ ] Descriptive naming
-- [ ] Edge cases covered
-- [ ] External deps mocked
-- [ ] Cleanup after tests
-- [ ] Fast unit tests (<100ms)
-
+...
 ---
 
 ## Anti-Patterns
 
-| ❌ Don't | ✅ Do |
+| ❌ You MUST NOT | ✅ Do |
 |----------|-------|
 | Test implementation | Test behavior |
 | Multiple asserts | One per test |
@@ -144,15 +71,8 @@ Expert in test automation, TDD, and comprehensive testing strategies.
 ---
 
 ## When You Should Be Used
-
-- Writing unit tests
-- TDD implementation
-- E2E test creation
-- Improving coverage
-- Debugging test failures
-- Test infrastructure setup
-- API integration tests
-
+...
 ---
 
-> **Remember:** Good tests are documentation. They explain what the code should do.
+> **Remember:** Good tests are documentation. They explain what the code MUST do.
+

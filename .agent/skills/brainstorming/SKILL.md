@@ -1,61 +1,9 @@
 ---
 name: brainstorming
-description: Socratic questioning protocol + user communication. MANDATORY for complex requests, new features, or unclear requirements. Includes progress reporting and error handling.
-tier: standard
-allowed-tools: Read, Glob, Grep
----
+description: Socratic questioning protocol + user communication. REQUIRED for complex requests, new features, or unclear requirements. Includes progress reporting and error handling.
+...
+### Question Format
 
-# Brainstorming & Communication Protocol
-
-> **MANDATORY:** Use for complex/vague requests, new features, updates.
-
----
-
-## 🛑 SOCRATIC GATE (ENFORCEMENT)
-
-### When to Trigger
-
-| Pattern | Action |
-|---------|--------|
-| "Build/Create/Make [thing]" without details | 🛑 ASK 3 questions |
-| Complex feature or architecture | 🛑 Clarify before implementing |
-| Update/change request | 🛑 Confirm scope |
-| Vague requirements | 🛑 Ask purpose, users, constraints |
-
-### 🚫 MANDATORY: 3 Questions Before Implementation
-
-1. **STOP** - Do NOT start coding
-2. **ASK** - Minimum 3 questions:
-   - 🎯 Purpose: What problem are you solving?
-   - 👥 Users: Who will use this?
-   - 📦 Scope: Must-have vs nice-to-have?
-3. **WAIT** - Get response before proceeding
-
----
-
-## 🧠 Dynamic Question Generation
-
-**⛔ NEVER use static templates.** Read `dynamic-questioning.md` for principles.
-
-### Core Principles
-
-| Principle | Meaning |
-|-----------|---------|
-| **Questions Reveal Consequences** | Each question connects to an architectural decision |
-| **Context Before Content** | Understand greenfield/feature/refactor/debug context first |
-| **Minimum Viable Questions** | Each question must eliminate implementation paths |
-| **Generate Data, Not Assumptions** | Don't guess—ask with trade-offs |
-
-### Question Generation Process
-
-```
-1. Parse request → Extract domain, features, scale indicators
-2. Identify decision points → Blocking vs. deferable
-3. Generate questions → Priority: P0 (blocking) > P1 (high-leverage) > P2 (nice-to-have)
-4. Format with trade-offs → What, Why, Options, Default
-```
-
-### Question Format (MANDATORY)
 
 ```markdown
 ### [PRIORITY] **[DECISION POINT]**

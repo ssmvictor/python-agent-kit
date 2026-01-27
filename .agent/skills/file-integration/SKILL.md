@@ -7,60 +7,10 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 # File Integration (On-Premise)
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 > File-based integration patterns for Windows enterprise environments.
-> **Learn to THINK, not memorize code.**
-
----
-
-## ⚠️ How to Use This Skill
-
-This skill teaches **file integration decision-making** for on-premise Windows.
-
-- Choose the right approach for your integration
-- Handle Windows-specific challenges (paths, encoding, permissions)
-- Design for reliability and error recovery
-
----
-
-## 1. Integration Decision Tree
-
-### Which Pattern to Use?
-
-```
-What's your integration scenario?
-│
-├── Drop file, process, move to done
-│   └── Input/Output folder pattern
-│
-├── Watch for new files in real-time
-│   ├── Low latency needed → watchdog library
-│   └── Simple polling OK → scheduled check
-│
-├── Access files on network share
-│   └── UNC path pattern (not mapped drives)
-│
-├── Exchange data with legacy system
-│   ├── CSV/Excel → pandas + openpyxl
-│   ├── Fixed-width → custom parser
-│   └── XML → lxml or ElementTree
-│
-└── Atomic file operations
-    └── Temp file + rename pattern
-```
-
-### Comparison Table
-
-| Pattern | Best For | Complexity |
-|---------|----------|------------|
-| **Polling** | Simple, periodic checks | Low |
-| **watchdog** | Real-time file events | Medium |
-| **Input/Output folders** | Batch processing | Low |
-| **Temp + rename** | Atomic writes | Low |
-
----
-
-## 2. Path Handling Principles
-
+...
 ### UNC vs Mapped Drives
 
 | Type | Example | Use In |
@@ -68,7 +18,8 @@ What's your integration scenario?
 | **UNC** | `\\server\share\folder` | Services, scheduled tasks |
 | **Mapped** | `Z:\folder` | Interactive user only |
 
-> 🔴 **Rule:** Always use UNC paths for automated processes. Mapped drives are user-specific.
+> **Rule:** You MUST always use UNC paths for automated processes. Mapped drives are user-specific.
+
 
 ### pathlib vs os.path
 

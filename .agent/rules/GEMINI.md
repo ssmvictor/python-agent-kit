@@ -8,22 +8,31 @@ trigger: always_on
 
 ---
 
-## CRITICAL: AGENT & SKILL PROTOCOL (START HERE)
+## P0: MUST Rules (RFC 2119)
 
-> **MANDATORY:** You MUST read the appropriate agent file and its skills BEFORE performing any implementation. This is the highest priority rule.
+> This project uses [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119) terminology for defining requirements.
+
+1.  **Read Before Implementation:** You MUST read the appropriate agent file and its skills BEFORE performing any implementation.
+2.  **Socratic Gate:** Every user request MUST pass through the Socratic Gate before any tool use or implementation.
+3.  **Intelligent Routing:** You MUST follow the protocol defined in `@[skills/intelligent-routing]` for agent selection.
+4.  **Clean Code:** All code MUST follow `@[skills/clean-code]` rules. No exceptions.
+
+---
+
+## 🏗️ AGENT & SKILL PROTOCOL
 
 ### 1. Modular Skill Loading Protocol
 
 Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Read specific sections.
 
-- **Selective Reading:** DO NOT read ALL files in a skill folder. Read `SKILL.md` first, then only read sections matching the user's request.
+- **Selective Reading:** You SHOULD NOT read ALL files in a skill folder. Read `SKILL.md` first, then only read sections matching the user's request.
 - **Rule Priority:** P0 (GEMINI.md) > P1 (Agent .md) > P2 (SKILL.md). All rules are binding.
 
 ### 2. Enforcement Protocol
 
 1. **When agent is activated:**
     - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
-2. **Forbidden:** Never skip reading agent rules or skill instructions. "Read → Understand → Apply" is mandatory.
+2. **Forbidden:** You MUST NOT skip reading agent rules or skill instructions. "Read → Understand → Apply" is required.
 
 ---
 
@@ -46,8 +55,6 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 
 **ALWAYS ACTIVE: Before responding to ANY request, automatically analyze and select the best agent(s).**
 
-> 🔴 **MANDATORY:** You MUST follow the protocol defined in `@[skills/intelligent-routing]`.
-
 ### Auto-Selection Protocol
 
 1. **Analyze (Silent)**: Detect domains (Frontend, Backend, Security, etc.) from user request.
@@ -55,9 +62,9 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 3. **Inform User**: Concisely state which expertise is being applied.
 4. **Apply**: Generate response using the selected agent's persona and rules.
 
-### Response Format (MANDATORY)
+### Response Format
 
-When auto-applying an agent, inform the user:
+When auto-applying an agent, you SHOULD inform the user:
 
 ```markdown
 🤖 **Applying knowledge of `@[agent-name]`...**
@@ -68,7 +75,7 @@ When auto-applying an agent, inform the user:
 **Rules:**
 
 1. **Silent Analysis**: No verbose meta-commentary ("I am analyzing...").
-2. **Respect Overrides**: If user mentions `@agent`, use it.
+2. **Respect Overrides**: If user mentions `@agent`, you MUST use it.
 3. **Complex Tasks**: For multi-domain requests, use `orchestrator` and ask Socratic questions first.
 
 ---
@@ -79,13 +86,13 @@ When auto-applying an agent, inform the user:
 
 When user's prompt is NOT in English:
 
-1. **Internally translate** for better comprehension
-2. **Respond in user's language** - match their communication
-3. **Code comments/variables** remain in English
+1. **Internally translate** for better comprehension.
+2. **Respond in user's language** - match their communication.
+3. **Code comments/variables** SHOULD remain in English.
 
-### 🧹 Clean Code (Global Mandatory)
+### 🧹 Clean Code
 
-**ALL code MUST follow `@[skills/clean-code]` rules. No exceptions.**
+**ALL code MUST follow `@[skills/clean-code]` rules.**
 
 - **Code**: Concise, direct, no over-engineering. Self-documenting.
 - **Testing**: Mandatory. Pyramid (Unit > Int > E2E) + AAA Pattern.
@@ -102,7 +109,7 @@ When user's prompt is NOT in English:
 
 ### 🗺️ System Map Read
 
-> 🔴 **MANDATORY:** Read `ARCHITECTURE.md` at session start to understand Agents, Skills, and Scripts.
+You SHOULD read `ARCHITECTURE.md` at session start to understand Agents, Skills, and Scripts.
 
 **Path Awareness:**
 
@@ -140,7 +147,7 @@ When user's prompt is NOT in English:
 
 ### 🛑 GLOBAL SOCRATIC GATE (TIER 0)
 
-**MANDATORY: Every user request must pass through the Socratic Gate before ANY tool use or implementation.**
+**Every user request MUST pass through the Socratic Gate before ANY tool use or implementation.**
 
 | Request Type            | Strategy       | Required Action                                                   |
 | ----------------------- | -------------- | ----------------------------------------------------------------- |
@@ -153,9 +160,11 @@ When user's prompt is NOT in English:
 **Protocol:**
 
 1. **Never Assume:** If even 1% is unclear, ASK.
-2. **Handle Spec-heavy Requests:** When user gives a list (Answers 1, 2, 3...), do NOT skip the gate. Instead, ask about **Trade-offs** or **Edge Cases** (e.g., "LocalStorage confirmed, but should we handle data clearing or versioning?") before starting.
-3. **Wait:** Do NOT invoke subagents or write code until the user clears the Gate.
+2. **Handle Spec-heavy Requests:** When user gives a list (Answers 1, 2, 3...), you MUST NOT skip the gate. Instead, ask about **Trade-offs** or **Edge Cases** (e.g., "LocalStorage confirmed, but should we handle data clearing or versioning?") before starting.
+3. **Wait:** You MUST NOT invoke subagents or write code until the user clears the Gate.
 4. **Reference:** Full protocol in `@[skills/brainstorming]`.
+
+---
 
 ### 🏁 Final Checklist Protocol
 
@@ -190,7 +199,7 @@ When user's prompt is NOT in English:
 | `lighthouse_audit.py`      | performance-profiling | Before deploy       |
 | `playwright_runner.py`     | webapp-testing        | Before deploy       |
 
-> 🔴 **Agents & Skills can invoke ANY script** via `python .agent/skills/<skill>/scripts/<script>.py`
+> Agents & Skills can invoke ANY script via `python .agent/skills/<skill>/scripts/<script>.py`
 
 ### 🎭 Gemini Mode Mapping
 
@@ -207,13 +216,13 @@ When user's prompt is NOT in English:
 3. SOLUTIONING → Architecture, design (NO CODE!)
 4. IMPLEMENTATION → Code + tests
 
-> 🔴 **Edit mode:** If multi-file or structural change → Offer to create `{task-slug}.md`. For single-file fixes → Proceed directly.
+> **Edit mode:** If multi-file or structural change → Offer to create `{task-slug}.md`. For single-file fixes → Proceed directly.
 
 ---
 
 ## TIER 2: DESIGN RULES (Reference)
 
-> **Design rules are in `frontend-specialist` agent.**
+> Design rules are in `frontend-specialist` agent.
 
 | Task      | Read                                  |
 | --------- | ------------------------------------- |
@@ -226,7 +235,7 @@ When user's prompt is NOT in English:
 - Anti-cliché rules
 - Deep Design Thinking protocol
 
-> 🔴 **For design work:** Open and READ the agent file. Rules are there.
+> **For design work:** Open and READ the agent file. Rules are there.
 
 ---
 

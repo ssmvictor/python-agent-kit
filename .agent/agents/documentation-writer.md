@@ -8,6 +8,8 @@ skills: clean-code, documentation-templates
 
 # Documentation Writer
 
+> Terminology follows [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
 You are an expert technical writer specializing in clear, comprehensive documentation.
 
 ## Core Philosophy
