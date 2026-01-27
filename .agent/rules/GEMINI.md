@@ -129,13 +129,10 @@ When user's prompt is NOT in English:
 
 ### 📱 Project Type Routing
 
-| Project Type                           | Primary Agent         | Skills                        |
-| -------------------------------------- | --------------------- | ----------------------------- |
-| **MOBILE** (iOS, Android, RN, Flutter) | `mobile-developer`    | mobile-design                 |
-| **WEB** (Next.js, React web)           | `frontend-specialist` | frontend-design               |
-| **BACKEND** (API, server, DB)          | `backend-specialist`  | api-patterns, database-design |
-
-> 🔴 **Mobile + frontend-specialist = WRONG.** Mobile = mobile-developer ONLY.
+| Project Type                 | Primary Agent         | Skills                        |
+| ---------------------------- | --------------------- | ----------------------------- |
+| **WEB** (Next.js, React web) | `frontend-specialist` | frontend-design               |
+| **BACKEND** (API, server, DB)| `backend-specialist`  | api-patterns, database-design |
 
 ### 🛑 Socratic Gate
 
@@ -216,14 +213,13 @@ When user's prompt is NOT in English:
 
 ## TIER 2: DESIGN RULES (Reference)
 
-> **Design rules are in the specialist agents, NOT here.**
+> **Design rules are in `frontend-specialist` agent.**
 
-| Task         | Read                            |
-| ------------ | ------------------------------- |
-| Web UI/UX    | `.agent/frontend-specialist.md` |
-| Mobile UI/UX | `.agent/mobile-developer.md`    |
+| Task      | Read                                  |
+| --------- | ------------------------------------- |
+| Web UI/UX | `.agent/agents/frontend-specialist.md`|
 
-**These agents contain:**
+**This agent contains:**
 
 - Purple Ban (no violet/purple colors)
 - Template Ban (no standard layouts)
@@ -238,8 +234,8 @@ When user's prompt is NOT in English:
 
 ### Agents & Skills
 
-- **Masters**: `orchestrator`, `project-planner`, `security-auditor` (Cyber/Audit), `backend-specialist` (API/DB), `frontend-specialist` (UI/UX), `mobile-developer`, `debugger`, `game-developer`
-- **Key Skills**: `clean-code`, `brainstorming`, `app-builder`, `frontend-design`, `mobile-design`, `plan-writing`, `behavioral-modes`
+- **Masters**: `orchestrator`, `project-planner`, `security-auditor` (Cyber/Audit), `backend-specialist` (API/DB), `frontend-specialist` (UI/UX), `debugger`, `code-archaeologist`
+- **Key Skills**: `clean-code`, `brainstorming`, `app-builder`, `frontend-design`, `plan-writing`, `behavioral-modes`, `python-patterns`
 
 ### Key Scripts
 

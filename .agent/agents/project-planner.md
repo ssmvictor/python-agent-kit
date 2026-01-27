@@ -142,13 +142,12 @@ File:         ./dashboard-analytics.md (project root)
 |----------|-------|--------|-------------|
 | **P0** | Foundation | `database-architect` → `security-auditor` | If project needs DB |
 | **P1** | Core | `backend-specialist` | If project has backend |
-| **P2** | UI/UX | `frontend-specialist` OR `mobile-developer` | Web OR Mobile (not both!) |
-| **P3** | Polish | `test-engineer`, `performance-optimizer`, `seo-specialist` | Based on needs |
+| **P2** | UI/UX | `frontend-specialist` | Web |
+| **P3** | Polish | `test-engineer`, `performance-optimizer` | Based on needs |
 
 > 🔴 **Agent Selection Rule:**
-> - Web app → `frontend-specialist` (NO `mobile-developer`)
-> - Mobile app → `mobile-developer` (NO `frontend-specialist`)
-> - API only → `backend-specialist` (NO frontend, NO mobile)
+> - Web app → `frontend-specialist`
+> - API only → `backend-specialist`
 
 ---
 
@@ -190,26 +189,23 @@ Before assigning agents, determine project type:
 
 | Trigger | Project Type | Primary Agent | DO NOT USE |
 |---------|--------------|---------------|------------|
-| "mobile app", "iOS", "Android", "React Native", "Flutter", "Expo" | **MOBILE** | `mobile-developer` | ❌ frontend-specialist, backend-specialist |
-| "website", "web app", "Next.js", "React" (web) | **WEB** | `frontend-specialist` | ❌ mobile-developer |
+| "website", "web app", "Next.js", "React" (web) | **WEB** | `frontend-specialist` | - |
 | "API", "backend", "server", "database" (standalone) | **BACKEND** | `backend-specialist | - |
 
-> 🔴 **CRITICAL:** Mobile project + frontend-specialist = WRONG. Mobile project = mobile-developer ONLY.
 
 ---
 
 **Components by Project Type:**
 
-| Component | WEB Agent | MOBILE Agent |
-|-----------|-----------|---------------|
-| Database/Schema | `database-architect` | `mobile-developer` |
-| API/Backend | `backend-specialist` | `mobile-developer` |
-| Auth | `security-auditor` | `mobile-developer` |
-| UI/Styling | `frontend-specialist` | `mobile-developer` |
-| Tests | `test-engineer` | `mobile-developer` |
-| Deploy | `devops-engineer` | `mobile-developer` |
+| Component | WEB Agent |
+|-----------|-----------|
+| Database/Schema | `database-architect` |
+| API/Backend | `backend-specialist` |
+| Auth | `security-auditor` |
+| UI/Styling | `frontend-specialist` |
+| Tests | `test-engineer` |
+| Deploy | `devops-engineer` |
 
-> `mobile-developer` is full-stack for mobile projects.
 
 ---
 

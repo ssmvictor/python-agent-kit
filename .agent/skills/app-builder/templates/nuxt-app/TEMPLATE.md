@@ -98,4 +98,4 @@ project-name/
 - Server routes for API logic
 - Auto-import for clean code
 - TypeScript for type safety
-- See `@[skills/vue-expert]` for Vue patterns
+- See `@[skills/tailwind-patterns]` for styling patterns

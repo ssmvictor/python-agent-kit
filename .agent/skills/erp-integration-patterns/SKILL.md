@@ -1,7 +1,7 @@
 ---
 name: erp-integration-patterns
 description: ERP integration patterns for enterprise systems. Sync strategies, idempotency, key mapping, retry/DLQ patterns. Use for ERP-to-ERP integrations, service-to-DB sync, and enterprise data pipelines.
-tier: enterprise
+tier: standard
 ---
 
 # ERP Integration Patterns

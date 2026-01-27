@@ -102,16 +102,7 @@ VERIFICATION_SUITE = [
         ]
     },
     
-    # P5: SEO & Content
-    {
-        "category": "SEO & Content",
-        "checks": [
-            ("SEO Check", ".agent/skills/seo-fundamentals/scripts/seo_checker.py", False),
-            ("GEO Check", ".agent/skills/geo-fundamentals/scripts/geo_checker.py", False),
-        ]
-    },
-    
-    # P6: Performance (requires URL)
+    # P5: Performance (requires URL)
     {
         "category": "Performance",
         "requires_url": True,
@@ -121,28 +112,12 @@ VERIFICATION_SUITE = [
         ]
     },
     
-    # P7: E2E Testing (requires URL)
+    # P6: E2E Testing (requires URL)
     {
         "category": "E2E Testing",
         "requires_url": True,
         "checks": [
             ("Playwright E2E", ".agent/skills/webapp-testing/scripts/playwright_runner.py", False),
-        ]
-    },
-    
-    # P8: Mobile (if applicable)
-    {
-        "category": "Mobile",
-        "checks": [
-            ("Mobile Audit", ".agent/skills/mobile-design/scripts/mobile_audit.py", False),
-        ]
-    },
-    
-    # P9: Internationalization
-    {
-        "category": "Internationalization",
-        "checks": [
-            ("i18n Check", ".agent/skills/i18n-localization/scripts/i18n_checker.py", False),
         ]
     },
 ]

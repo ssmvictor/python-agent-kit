@@ -232,7 +232,6 @@ Read docs/PLAN.md
 #    "No PLAN.md found. Use project-planner to create plan."
 
 # 3. Verify agent routing
-#    Mobile project → Only mobile-developer
 #    Web project → frontend-specialist + backend-specialist
 ```
 
@@ -247,7 +246,6 @@ What domains does this task touch?
 - [ ] Database
 - [ ] Testing
 - [ ] DevOps
-- [ ] Mobile
 ```
 
 ### Step 2: Agent Selection
@@ -311,7 +309,6 @@ Combine findings into structured report:
 |------------|--------------|----------------|
 | **PLAN.md exists** | `Read docs/PLAN.md` | Use project-planner first |
 | **Project type valid** | WEB/MOBILE/BACKEND identified | Ask user or analyze request |
-| **Agent routing correct** | Mobile → mobile-developer only | Reassign agents |
 | **Socratic Gate passed** | 3 questions asked & answered | Ask questions first |
 
 > 🔴 **Remember:** NO specialist agents without verified PLAN.md.

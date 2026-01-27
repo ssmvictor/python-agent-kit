@@ -1,177 +1,172 @@
 # Antigravity Skills
 
-> **Hướng dẫn tạo và sử dụng Skills trong Antigravity Kit**
+> **Guide to creating and using Skills in the Antigravity Kit**
 
 ---
 
-## 📋 Giới thiệu
+## 📋 Introduction
 
-Mặc dù các mô hình cơ bản của Antigravity (như Gemini) là những mô hình đa năng mạnh mẽ, nhưng chúng không biết ngữ cảnh dự án cụ thể hoặc các tiêu chuẩn của nhóm bạn. Việc tải từng quy tắc hoặc công cụ vào cửa sổ ngữ cảnh của tác nhân sẽ dẫn đến tình trạng "phình to công cụ", chi phí cao hơn, độ trễ và sự nhầm lẫn.
-
-**Antigravity Skills** giải quyết vấn đề này thông qua tính năng **Progressive Disclosure**. Kỹ năng là một gói kiến thức chuyên biệt, ở trạng thái không hoạt động cho đến khi cần. Thông tin này chỉ được tải vào ngữ cảnh của tác nhân khi yêu cầu cụ thể của bạn khớp với nội dung mô tả của kỹ năng.
+Antigravity Skills enable **Progressive Disclosure** - specialized knowledge packages that remain dormant until needed. Skills are only loaded into the agent's context when your request matches the skill's description, preventing "tool bloat" and keeping responses focused.
 
 ---
 
-## 📁 Cấu trúc và Phạm vi
+## 📁 Structure
 
-Kỹ năng là các gói dựa trên thư mục. Bạn có thể xác định các phạm vi này tuỳ thuộc vào nhu cầu:
-
-| Phạm vi | Đường dẫn | Mô tả |
-|---------|-----------|-------|
-| **Workspace** | `<workspace-root>/.agent/skills/` | Chỉ có trong một dự án cụ thể |
-
-### Cấu trúc thư mục kỹ năng
+Skills are folder-based packages located in `.agent/skills/`:
 
 ```
-my-skill/
-├── SKILL.md      # (Required) Metadata & instructions
-├── scripts/      # (Optional) Python or Bash scripts
-├── references/   # (Optional) Text, documentation, templates
-└── assets/       # (Optional) Images or logos
+.agent/skills/
+├── clean-code/
+│   └── SKILL.md          # Lite: Single instruction file
+├── vulnerability-scanner/
+│   ├── SKILL.md          # Standard: Instructions + scripts
+│   ├── checklists.md     # Reference file
+│   └── scripts/
+│       └── security_scan.py
+└── app-builder/
+    ├── SKILL.md          # Pro: Full package
+    ├── templates/
+    └── scripts/
 ```
+
+### Skill Tiers
+
+| Tier | Description | Components |
+|------|-------------|------------|
+| **Lite** | Instructions only | `SKILL.md` |
+| **Standard** | Instructions + automation | `SKILL.md` + `scripts/` |
+| **Pro** | Full package | `SKILL.md` + `scripts/` + `templates/` |
 
 ---
 
-## 🔍 Ví dụ 1: Code Review Skill
+## 📝 SKILL.md Format
 
-Đây là một kỹ năng chỉ có hướng dẫn (instruction-only), chỉ cần tạo file `SKILL.md`.
-
-### Bước 1: Tạo thư mục
-
-```bash
-mkdir -p ~/.gemini/antigravity/skills/code-review
-```
-
-### Bước 2: Tạo SKILL.md
+Every skill requires a `SKILL.md` file with YAML frontmatter:
 
 ```markdown
 ---
-name: code-review
-description: Reviews code changes for bugs, style issues, and best practices. Use when reviewing PRs or checking code quality.
+name: skill-name
+description: Brief description. Used for auto-routing.
+tier: lite | standard | pro
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-# Code Review Skill
+# Skill Title
 
-When reviewing code, follow these steps:
-
-## Review checklist
-
-1. **Correctness**: Does the code do what it's supposed to?
-2. **Edge cases**: Are error conditions handled?
-3. **Style**: Does it follow project conventions?
-4. **Performance**: Are there obvious inefficiencies?
-
-## How to provide feedback
-
-- Be specific about what needs to change
-- Explain why, not just what
-- Suggest alternatives when possible
+Content and instructions...
 ```
-
-> **Lưu ý**: File `SKILL.md` chứa siêu dữ liệu (name, description) ở trên cùng, sau đó là các chỉ dẫn. Agent sẽ chỉ đọc siêu dữ liệu và chỉ tải hướng dẫn khi cần.
-
-### Dùng thử
-
-Tạo file `demo_bad_code.py`:
-
-```python
-import time
-
-def get_user_data(users, id):
-    # Find user by ID
-    for u in users:
-        if u['id'] == id:
-            return u
-    return None
-
-def process_payments(items):
-    total = 0
-    for i in items:
-        # Calculate tax
-        tax = i['price'] * 0.1
-        total = total + i['price'] + tax
-        time.sleep(0.1)  # Simulate slow network call
-    return total
-
-def run_batch():
-    users = [{'id': 1, 'name': 'Alice'}, {'id': 2, 'name': 'Bob'}]
-    items = [{'price': 10}, {'price': 20}, {'price': 100}]
-    
-    u = get_user_data(users, 3)
-    print("User found: " + u['name'])  # Will crash if None
-    
-    print("Total: " + str(process_payments(items)))
-
-if __name__ == "__main__":
-    run_batch()
-```
-
-**Prompt**: `review the @demo_bad_code.py file`
-
-Agent sẽ tự động xác định kỹ năng `code-review`, tải thông tin và thực hiện theo hướng dẫn.
 
 ---
 
-## 📄 Ví dụ 2: License Header Skill
+## 🔍 Example 1: Lite Skill (clean-code)
 
-Kỹ năng này sử dụng file tham chiếu (reference file) trong thư mục `resources/`.
-
-### Bước 1: Tạo thư mục
-
-```bash
-mkdir -p .agent/skills/license-header-adder/resources
-```
-
-### Bước 2: Tạo file template
-
-**`.agent/skills/license-header-adder/resources/HEADER.txt`**:
-
-```
-/*
- * Copyright (c) 2026 YOUR_COMPANY_NAME LLC.
- * All rights reserved.
- * This code is proprietary and confidential.
- */
-```
-
-### Bước 3: Tạo SKILL.md
-
-**`.agent/skills/license-header-adder/SKILL.md`**:
+**Path:** `.agent/skills/clean-code/SKILL.md`
 
 ```markdown
 ---
-name: license-header-adder
-description: Adds the standard corporate license header to new source files.
+name: clean-code
+description: Pragmatic coding standards - concise, direct, no over-engineering
+tier: lite
+allowed-tools: Read, Write, Edit
 ---
 
-# License Header Adder
+# Clean Code Standards
 
-This skill ensures that all new source files have the correct copyright header.
+## Core Principles
 
-## Instructions
+| Principle | Rule |
+|-----------|------|
+| **SRP** | Single Responsibility - each function does ONE thing |
+| **DRY** | Don't Repeat Yourself - extract duplicates |
+| **KISS** | Keep It Simple - simplest solution that works |
 
-1. **Read the Template**: Read the content of `resources/HEADER.txt`.
-2. **Apply to File**: When creating a new file, prepend this exact content.
-3. **Adapt Syntax**: 
-   - For C-style languages (Java, TS), keep the `/* */` block.
-   - For Python/Shell, convert to `#` comments.
+## Naming Rules
+
+| Element | Convention |
+|---------|------------|
+| **Functions** | Verb + noun: `getUserById()` |
+| **Booleans** | Question form: `isActive`, `hasPermission` |
 ```
 
-### Dùng thử
+---
 
-**Prompt**: `Create a new Python script named data_processor.py that prints 'Hello World'.`
+## � Example 2: Standard Skill (vulnerability-scanner)
 
-Agent sẽ đọc template, chuyển đổi comments theo kiểu Python và tự động thêm vào đầu file.
+**Path:** `.agent/skills/vulnerability-scanner/`
+
+```
+vulnerability-scanner/
+├── SKILL.md
+├── checklists.md
+└── scripts/
+    └── security_scan.py
+```
+
+**SKILL.md:**
+
+```markdown
+---
+name: vulnerability-scanner
+description: OWASP 2025, Supply Chain Security, attack surface mapping
+tier: standard
+allowed-tools: Read, Glob, Grep, Bash
+---
+
+# Vulnerability Scanner
+
+## Runtime Scripts
+
+| Script | Purpose | Command |
+|--------|---------|---------|
+| `scripts/security_scan.py` | Automated security validation | `python scripts/security_scan.py <path>` |
+
+## Reference Files
+
+| File | Purpose |
+|------|---------|
+| `checklists.md` | OWASP Top 10, Auth, API checklists |
+```
 
 ---
 
-## 🎯 Kết luận
+## ⚡ How Skills Are Used
 
-Bằng cách tạo Skills, bạn đã biến mô hình AI đa năng thành một chuyên gia cho dự án của mình:
+1. **Agent receives request** → "Review this code for security issues"
+2. **Router matches description** → `vulnerability-scanner` matches "security"
+3. **Skill loads** → Instructions and tools become available
+4. **Agent executes** → Follows skill instructions, runs scripts if needed
 
-- ✅ Hệ thống hoá các best practices
-- ✅ Tuân theo quy tắc đánh giá code
-- ✅ Tự động thêm license headers
-- ✅ Agent tự động biết cách làm việc với nhóm của bạn
+**Prompt:** `scan this project for security vulnerabilities`
 
-Thay vì liên tục nhắc AI "nhớ thêm license" hoặc "sửa format commit", giờ đây Agent sẽ tự động thực hiện!
+The agent automatically identifies `vulnerability-scanner`, loads the skill, and runs `security_scan.py`.
+
+---
+
+## 📋 Skill Validation
+
+Run the tier audit to verify all skills have valid tiers:
+
+```bash
+python .agent/scripts/skill_tier_audit.py
+```
+
+Expected output:
+```
+✅ All skills have tier defined!
+  Total Skills: 35
+  Pro:          3
+  Standard:     16
+  Lite:         16
+```
+
+---
+
+## 🎯 Summary
+
+| Skill Type | When to Use |
+|------------|-------------|
+| **Lite** | Simple rules and guidelines |
+| **Standard** | Rules + automated validation scripts |
+| **Pro** | Complete packages with templates and generators |
+
+> **Remember:** Skills transform a general-purpose AI into a specialist for your project. Define once, apply automatically.
