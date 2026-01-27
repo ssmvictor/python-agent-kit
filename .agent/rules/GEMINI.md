@@ -159,7 +159,7 @@ When user's prompt is NOT in English:
 
 ### 🏁 Final Checklist Protocol
 
-**Trigger:** When the user says "son kontrolleri yap", "final checks", "çalıştır tüm testleri", or similar phrases.
+**Trigger:** When the user says "final checks", "run all tests", "pre-deploy checks", or similar phrases.
 
 | Task Stage       | Command                                            | Purpose                        |
 | ---------------- | -------------------------------------------------- | ------------------------------ |

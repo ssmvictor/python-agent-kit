@@ -146,8 +146,8 @@ Pick a radical path and commit:
 
 ```
 ❌ WRONG (Generic):
-- "Renk tercihiniz var mı?"
-- "Nasıl bir tasarım istersiniz?"
+- "Do you have a color preference?"
+- "What kind of design do you want?"
 
 ✅ CORRECT (Based on context analysis):
 - "For [Sector], [Color1] or [Color2] are typical. 

@@ -158,7 +158,6 @@ File to edit: UserService.ts
 | **test-engineer** | Playwright | `python .agent/skills/webapp-testing/scripts/playwright_runner.py <url>` |
 | **Any agent** | Lint Check | `python .agent/skills/lint-and-validate/scripts/lint_runner.py .` |
 | **Any agent** | Type Coverage | `python .agent/skills/lint-and-validate/scripts/type_coverage.py .` |
-| **Any agent** | i18n Check | `python .agent/skills/i18n-localization/scripts/i18n_checker.py .` |
 
 > ❌ **WRONG:** `test-engineer` running `ux_audit.py`
 > ✅ **CORRECT:** `frontend-specialist` running `ux_audit.py`

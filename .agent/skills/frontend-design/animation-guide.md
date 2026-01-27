@@ -107,7 +107,7 @@ Success → confirmation (check, color)
 
 1. **Respond immediately** (under 100ms perception)
 2. **Match the action** (press = `scale(0.95)`, hover = `translateY(-4px) + glow`)
-3. **Be bold but smooth** (Usta işi hissettir)
+3. **Be bold but smooth** (Make it feel crafted)
 4. **Be consistent** (same actions = same feedback)
 
 ---
