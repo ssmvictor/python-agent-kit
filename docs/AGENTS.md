@@ -49,26 +49,26 @@ ERRO/LOG (se for debug):
 | --- | --- | --- | --- | --- | --- |
 | `automation-specialist` | `.agent/agents/automation-specialist.md` | Engenharia (App, Dados, Automação) | — | `enterprise-automation`, `python-patterns`, `clean-code`, `powershell-windows`, `scheduled-tasks` | `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` |
 | `backend-specialist` | `.agent/agents/backend-specialist.md` | Engenharia (App, Dados, Automação) | `backend`, `server`, `api`, `endpoint`, `database`, `auth` | `clean-code`, `python-patterns`, `api-patterns`, `database-design`, `mcp-builder`, `lint-and-validate`, `powershell-windows` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
-| `code-archaeologist` | `.agent/agents/code-archaeologist.md` | Orquestração & Descoberta | `legacy`, `refactor`, `undocumented`, `old code`, `monolith`, `spaghetti` | `clean-code`, `architecture`, `systematic-debugging`, `documentation-templates` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
+| `code-archaeologist` | `.agent/agents/code-archaeologist.md` | Orquestração & Descoberta | `legacy`, `refactor`, `undocumented`, `old code`, `monolith`, `spaghetti` | `clean-code`, `architecture`, `systematic-debugging`, `documentation-templates`, `python-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 | `data-engineer` | `.agent/agents/data-engineer.md` | Engenharia (App, Dados, Automação) | — | `data-processing`, `database-connectors`, `clean-code`, `python-patterns`, `lint-and-validate` | `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` |
 | `database-architect` | `.agent/agents/database-architect.md` | Engenharia (App, Dados, Automação) | `database`, `schema`, `migration`, `sql`, `performance`, `index` | `database-design`, `clean-code`, `architecture`, `performance-profiling`, `lint-and-validate` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 | `database-connector` | `.agent/agents/database-connector.md` | Engenharia (App, Dados, Automação) | — | `database-connectors`, `database-design`, `python-patterns`, `clean-code` | `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` |
-| `debugger` | `.agent/agents/debugger.md` | Qualidade, Testes & Debug | `debug`, `bug`, `error`, `traceback`, `crash`, `broken` | `systematic-debugging`, `clean-code`, `testing-patterns`, `lint-and-validate` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
-| `devops-engineer` | `.agent/agents/devops-engineer.md` | DevOps & Operações | `deploy`, `server`, `ci/cd`, `docker`, `production`, `ops` | `deployment-procedures`, `server-management`, `scheduled-tasks`, `powershell-windows`, `vulnerability-scanner` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
+| `debugger` | `.agent/agents/debugger.md` | Qualidade, Testes & Debug | `debug`, `bug`, `error`, `traceback`, `crash`, `broken` | `systematic-debugging`, `clean-code`, `testing-patterns`, `lint-and-validate`, `python-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
+| `devops-engineer` | `.agent/agents/devops-engineer.md` | DevOps & Operações | `deploy`, `server`, `ci/cd`, `docker`, `production`, `ops` | `deployment-procedures`, `server-management`, `scheduled-tasks`, `powershell-windows`, `vulnerability-scanner`, `python-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 | `documentation-writer` | `.agent/agents/documentation-writer.md` | Documentação | — | `documentation-templates`, `clean-code`, `architecture` | `Read`, `Write`, `Edit` |
 | `explorer-agent` | `.agent/agents/explorer-agent.md` | Orquestração & Descoberta | — | `intelligent-routing`, `architecture`, `clean-code`, `documentation-templates` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 | `frontend-specialist` | `.agent/agents/frontend-specialist.md` | Engenharia (App, Dados, Automação) | `frontend`, `react`, `next`, `ui`, `component`, `tailwind` | `frontend-design`, `tailwind-patterns`, `performance-profiling`, `webapp-testing`, `lint-and-validate` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 | `git-commit-specialist` | `.agent/agents/git-commit-specialist.md` | Qualidade, Testes & Debug | — | `commit-critic`, `clean-code`, `documentation-templates` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 | `office-integrator` | `.agent/agents/office-integrator.md` | Engenharia (App, Dados, Automação) | — | `office-integration`, `clean-code`, `python-patterns` | `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` |
-| `orchestrator` | `.agent/agents/orchestrator.md` | Orquestração & Descoberta | — | `clean-code`, `parallel-agents`, `behavioral-modes`, `plan-writing`, `brainstorming`, `architecture`, `lint-and-validate`, `powershell-windows` | `Read`, `Grep`, `Glob`, `Bash`, `Write`, `Edit`, `Agent` |
-| `penetration-tester` | `.agent/agents/penetration-tester.md` | Segurança | `pentest`, `penetration`, `exploit`, `red team`, `vulnerability`, `security testing` | `red-team-tactics`, `vulnerability-scanner`, `api-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
+| `orchestrator` | `.agent/agents/orchestrator.md` | Orquestração & Descoberta | — | `clean-code`, `parallel-agents`, `behavioral-modes`, `plan-writing`, `brainstorming`, `architecture`, `lint-and-validate`, `powershell-windows`, `python-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Write`, `Edit`, `Agent` |
+| `penetration-tester` | `.agent/agents/penetration-tester.md` | Segurança | `pentest`, `penetration`, `exploit`, `red team`, `vulnerability`, `security testing` | `red-team-tactics`, `vulnerability-scanner`, `api-patterns`, `python-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 | `performance-optimizer` | `.agent/agents/performance-optimizer.md` | DevOps & Operações | `performance`, `slow`, `optimize`, `bundle`, `cwv`, `lighthouse` | `performance-profiling`, `frontend-design`, `clean-code`, `lint-and-validate` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 | `product-manager` | `.agent/agents/product-manager.md` | Produto & Planejamento | `requirements`, `user story`, `acceptance criteria`, `scope`, `mvp`, `stakeholders` | `brainstorming`, `plan-writing`, `documentation-templates` | `Read`, `Write`, `Edit` |
 | `product-owner` | `.agent/agents/product-owner.md` | Produto & Planejamento | `priorities`, `backlog`, `roadmap`, `stakeholder`, `trade-offs`, `delivery` | `brainstorming`, `plan-writing`, `documentation-templates` | `Read`, `Write`, `Edit` |
 | `project-planner` | `.agent/agents/project-planner.md` | Produto & Planejamento | — | `clean-code`, `app-builder`, `plan-writing`, `brainstorming` | `Read`, `Grep`, `Glob`, `Bash` |
-| `qa-automation-engineer` | `.agent/agents/qa-automation-engineer.md` | Qualidade, Testes & Debug | — | `webapp-testing`, `testing-patterns`, `clean-code`, `lint-and-validate` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
-| `security-auditor` | `.agent/agents/security-auditor.md` | Segurança | — | `vulnerability-scanner`, `red-team-tactics`, `api-patterns`, `clean-code` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
-| `test-engineer` | `.agent/agents/test-engineer.md` | Qualidade, Testes & Debug | — | `testing-patterns`, `tdd-workflow`, `clean-code`, `lint-and-validate` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
+| `qa-automation-engineer` | `.agent/agents/qa-automation-engineer.md` | Qualidade, Testes & Debug | — | `webapp-testing`, `testing-patterns`, `clean-code`, `lint-and-validate`, `python-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
+| `security-auditor` | `.agent/agents/security-auditor.md` | Segurança | — | `vulnerability-scanner`, `red-team-tactics`, `api-patterns`, `clean-code`, `python-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
+| `test-engineer` | `.agent/agents/test-engineer.md` | Qualidade, Testes & Debug | — | `testing-patterns`, `tdd-workflow`, `clean-code`, `lint-and-validate`, `python-patterns` | `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write` |
 
 ## Agents por categoria (com quando usar e exemplo de prompt)
 
@@ -78,7 +78,7 @@ ERRO/LOG (se for debug):
 - **Arquivo**: `.agent/agents/code-archaeologist.md`
 - **Descrição**: Expert in legacy code, refactoring, and understanding undocumented systems. Use for reverse-engineering, modernization, and risk mitigation.
 - **Gatilhos (keywords)**: `legacy`, `refactor`, `undocumented`, `old code`, `monolith`, `spaghetti`
-- **Skills carregadas**: `clean-code`, `architecture`, `systematic-debugging`, `documentation-templates`
+- **Skills carregadas**: `clean-code`, `architecture`, `systematic-debugging`, `documentation-templates`, `python-patterns`
 - **Ferramentas permitidas**: `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write`
 - **Use quando**:
   - Entender **código legado** ou sem documentação (mapa de módulos, fluxos, side-effects).
@@ -108,7 +108,7 @@ Use o agent `explorer-agent` para: Fazer **descoberta de codebase**: localizar a
 #### `orchestrator`
 - **Arquivo**: `.agent/agents/orchestrator.md`
 - **Descrição**: Multi-agent coordination and task orchestration. Use when a task requires multiple agents or cross-cutting changes.
-- **Skills carregadas**: `clean-code`, `parallel-agents`, `behavioral-modes`, `plan-writing`, `brainstorming`, `architecture`, `lint-and-validate`, `powershell-windows`
+- **Skills carregadas**: `clean-code`, `parallel-agents`, `behavioral-modes`, `plan-writing`, `brainstorming`, `architecture`, `lint-and-validate`, `powershell-windows`, `python-patterns`
 - **Ferramentas permitidas**: `Read`, `Grep`, `Glob`, `Bash`, `Write`, `Edit`, `Agent`
 - **Use quando**:
   - Coordenar múltiplos agentes e consolidar resultados (planejamento + execução + verificação).
@@ -285,7 +285,7 @@ Use o agent `office-integrator` para: Geração/manipulação de **Excel/Word/PD
 - **Arquivo**: `.agent/agents/debugger.md`
 - **Descrição**: Expert in systematic debugging, root cause analysis, and crash investigation.
 - **Gatilhos (keywords)**: `debug`, `bug`, `error`, `traceback`, `crash`, `broken`
-- **Skills carregadas**: `systematic-debugging`, `clean-code`, `testing-patterns`, `lint-and-validate`
+- **Skills carregadas**: `systematic-debugging`, `clean-code`, `testing-patterns`, `lint-and-validate`, `python-patterns`
 - **Ferramentas permitidas**: `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write`
 - **Use quando**:
   - Investigar bugs com método (reproduzir → isolar → causa raiz → correção → prevenção).
@@ -315,7 +315,7 @@ Use o agent `git-commit-specialist` para: Validar commits e PRs com **Convention
 #### `qa-automation-engineer`
 - **Arquivo**: `.agent/agents/qa-automation-engineer.md`
 - **Descrição**: Specialist in test automation infrastructure and E2E testing. Focuses on Playwright, CI integration, and reducing flakiness.
-- **Skills carregadas**: `webapp-testing`, `testing-patterns`, `clean-code`, `lint-and-validate`
+- **Skills carregadas**: `webapp-testing`, `testing-patterns`, `clean-code`, `lint-and-validate`, `python-patterns`
 - **Ferramentas permitidas**: `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write`
 - **Use quando**:
   - Infra de testes automatizados (E2E) com Playwright e pipelines de execução.
@@ -330,7 +330,7 @@ Use o agent `qa-automation-engineer` para: Infra de testes automatizados (E2E) c
 #### `test-engineer`
 - **Arquivo**: `.agent/agents/test-engineer.md`
 - **Descrição**: Expert in testing, TDD, and test automation. Use for writing tests, improving coverage, and test strategy.
-- **Skills carregadas**: `testing-patterns`, `tdd-workflow`, `clean-code`, `lint-and-validate`
+- **Skills carregadas**: `testing-patterns`, `tdd-workflow`, `clean-code`, `lint-and-validate`, `python-patterns`
 - **Ferramentas permitidas**: `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write`
 - **Use quando**:
   - Escrever testes (unit/integration) e aplicar TDD quando apropriado.
@@ -348,7 +348,7 @@ Use o agent `test-engineer` para: Escrever testes (unit/integration) e aplicar T
 - **Arquivo**: `.agent/agents/devops-engineer.md`
 - **Descrição**: Expert in deployment, server management, CI/CD, and production operations. CRITICAL: ensures safe deployment with rollback plans.
 - **Gatilhos (keywords)**: `deploy`, `server`, `ci/cd`, `docker`, `production`, `ops`
-- **Skills carregadas**: `deployment-procedures`, `server-management`, `scheduled-tasks`, `powershell-windows`, `vulnerability-scanner`
+- **Skills carregadas**: `deployment-procedures`, `server-management`, `scheduled-tasks`, `powershell-windows`, `vulnerability-scanner`, `python-patterns`
 - **Ferramentas permitidas**: `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write`
 - **Use quando**:
   - Definir/operar **deploy**, CI/CD, ambientes (staging/prod) e rollback.
@@ -382,7 +382,7 @@ Use o agent `performance-optimizer` para: Otimização de performance (profiling
 - **Arquivo**: `.agent/agents/penetration-tester.md`
 - **Descrição**: Expert in offensive security, penetration testing, red team operations, and vulnerability exploitation. Use only for authorized testing.
 - **Gatilhos (keywords)**: `pentest`, `penetration`, `exploit`, `red team`, `vulnerability`, `security testing`
-- **Skills carregadas**: `red-team-tactics`, `vulnerability-scanner`, `api-patterns`
+- **Skills carregadas**: `red-team-tactics`, `vulnerability-scanner`, `api-patterns`, `python-patterns`
 - **Ferramentas permitidas**: `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write`
 - **Use quando**:
   - Avaliar segurança de forma **ofensiva** em ambientes autorizados (pentest/red team), reportando riscos e evidências.
@@ -397,7 +397,7 @@ Use o agent `penetration-tester` para: Avaliar segurança de forma **ofensiva** 
 #### `security-auditor`
 - **Arquivo**: `.agent/agents/security-auditor.md`
 - **Descrição**: Elite cybersecurity expert. Think like an attacker, defend like an expert. OWASP Top 10, secure coding, configuration hardening, and incident response.
-- **Skills carregadas**: `vulnerability-scanner`, `red-team-tactics`, `api-patterns`, `clean-code`
+- **Skills carregadas**: `vulnerability-scanner`, `red-team-tactics`, `api-patterns`, `clean-code`, `python-patterns`
 - **Ferramentas permitidas**: `Read`, `Grep`, `Glob`, `Bash`, `Edit`, `Write`
 - **Use quando**:
   - Auditoria defensiva (OWASP, configuração, supply chain) e hardening.

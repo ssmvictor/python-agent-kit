@@ -704,21 +704,22 @@ Use a skill `powershell-windows` para: corrigir/produzir um script PowerShell re
 
 **Categoria:** Python  
 **Tier:** `lite`  
-**Ferramentas permitidas (frontmatter):** `Read, Write, Edit`
+**Ferramentas permitidas (frontmatter):** `Read, Write, Edit, Glob, Grep`
 
-**Objetivo:** Escolher padrões e frameworks Python (sync/async, FastAPI, CLI, packaging) conforme requisitos.
+**Objetivo:** Desenvolvimento Python com OOP-first e tipagem forte. Escolha de framework (FastAPI/Django), async vs sync, estrutura de projeto e padrões de validação.
 
 ### Quando usar
-- Escolher padrões e frameworks Python (sync/async, FastAPI, CLI, packaging) conforme requisitos.
-- Padronizar tipagem (mypy), estrutura de projeto e práticas de teste.
-- Tomar decisões de performance e arquitetura em Python.
+- Desenvolver código Python com OOP (classes para lógica de negócio, free functions para wiring).
+- Aplicar tipagem forte (type hints obrigatórios, pyright strict ou mypy --strict).
+- Escolher framework Python (sync/async, FastAPI, CLI, packaging) conforme requisitos.
+- Definir estrutura de projeto, validação (Pydantic) e práticas de teste.
 
 ### Arquivos principais
 - **Skill**: `.agent/skills/python-patterns/SKILL.md`
 
 ### Exemplo de uso (prompt)
 ```text
-Use a skill `python-patterns` para: decidir arquitetura/estrutura de um pacote Python com tipagem e testes.
+Use a skill `python-patterns` para: decidir arquitetura/estrutura de um pacote Python com OOP e tipagem estrita (pyright/mypy).
 ```
 
 ---
