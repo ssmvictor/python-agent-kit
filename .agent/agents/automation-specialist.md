@@ -82,24 +82,25 @@ password = "MyPassword123"
 
 ```python
 from functools import wraps
-from typing import Callable, TypeVar
+from typing import Callable, ParamSpec, TypeVar
 import time
 
+P = ParamSpec('P')
 T = TypeVar('T')
 
 def retry_on_com_error(
     max_attempts: int = 3,
     delay_seconds: float = 1.0,
     backoff: float = 2.0
-) -> Callable:
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """Retry decorator for COM operations."""
-    
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+
+    def decorator(func: Callable[P, T]) -> Callable[P, T]:
         @wraps(func)
-        def wrapper(*args, **kwargs) -> T:
-            last_error = None
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            last_error: Exception | None = None
             current_delay = delay_seconds
-            
+
             for attempt in range(max_attempts):
                 try:
                     return func(*args, **kwargs)
@@ -108,9 +109,9 @@ def retry_on_com_error(
                     if attempt < max_attempts - 1:
                         time.sleep(current_delay)
                         current_delay *= backoff
-            
-            raise last_error
-        
+
+            raise last_error or RuntimeError("All retry attempts failed")
+
         return wrapper
     return decorator
 
@@ -118,7 +119,7 @@ def retry_on_com_error(
 # Usage:
 class ExcelAutomation:
     @retry_on_com_error(max_attempts=3)
-    def open_workbook(self, path: str) -> any:
+    def open_workbook(self, path: str) -> object:
         """Open workbook with retry on failure."""
         return self._excel.Workbooks.Open(path)
 ```
@@ -185,6 +186,7 @@ class ExcelAutomation(BaseAutomation[ExcelConfig]):
 from dataclasses import dataclass
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -220,7 +222,7 @@ class WebAutomation(BaseAutomation[SeleniumConfig]):
         if self._driver:
             self._driver.quit()
     
-    def wait_for_element(self, by: By, value: str) -> Any:
+    def wait_for_element(self, by: By, value: str) -> WebElement:
         """Wait for element to be present."""
         wait = WebDriverWait(self._driver, self._config.timeout)
         return wait.until(EC.presence_of_element_located((by, value)))
