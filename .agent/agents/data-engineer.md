@@ -83,38 +83,45 @@ class Pipeline:
 ### Pattern 3: Data Validator with Pydantic
 
 ```python
-from pydantic import BaseModel, validator
-from typing import Optional
+from pydantic import BaseModel, ValidationError as PydanticValidationError, validator
+from typing import Hashable, TypedDict, TypeVar
 import pandas as pd
+
+ModelT = TypeVar('ModelT', bound=BaseModel)
 
 class SalesRecord(BaseModel):
     """Validated sales record."""
-    
+
     order_id: str
     amount: float
     customer_id: str
     date: str
-    
+
     @validator('amount')
     def amount_positive(cls, v: float) -> float:
         if v <= 0:
             raise ValueError('Amount must be positive')
         return v
 
+class ValidationError(TypedDict):
+    index: Hashable
+    error: str
+
 class DataValidator:
     """Validate DataFrame against Pydantic model."""
-    
-    def __init__(self, model: type[BaseModel]) -> None:
+
+    def __init__(self, model: type[ModelT]) -> None:
         self._model = model
-    
-    def validate_df(self, df: pd.DataFrame) -> tuple[list[BaseModel], list[dict]]:
+
+    def validate_df(self, df: pd.DataFrame) -> tuple[list[ModelT], list[ValidationError]]:
         """Return (valid_records, error_records)."""
-        valid, errors = [], []
+        valid: list[ModelT] = []
+        errors: list[ValidationError] = []
         for idx, row in df.iterrows():
             try:
                 valid.append(self._model(**row.to_dict()))
-            except Exception as e:
-                errors.append({'index': idx, 'error': str(e)})
+            except PydanticValidationError as e:
+                errors.append(ValidationError(index=idx, error=str(e)))
         return valid, errors
 ```
 
