@@ -1,6 +1,6 @@
 ---
 name: python-patterns
-description: Python development principles and decision-making. Framework selection, async patterns, type hints, project structure. Teaches thinking, not copying.
+description: Python development principles and decision-making. OOP-first architecture, strict type hints, async patterns, project structure. Teaches thinking, not copying.
 tier: lite
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
@@ -19,6 +19,25 @@ This skill teaches **decision-making principles**, not fixed code to copy.
 - ASK user for framework preference when unclear
 - Choose async vs sync based on CONTEXT
 - Don't default to same framework every time
+
+This skill also enforces two defaults:
+
+- Write solutions in an OOP style (classes for business logic, free functions mostly for wiring)
+- Use strict type hints (treat static typing as a build gate)
+
+---
+
+## 0. Defaults: OOP + Strong Typing
+
+This skill assumes Python is written like a strongly-typed OOP language.
+
+Non-negotiables:
+
+- Prefer classes for business logic (services/use-cases/repositories); keep free functions for wiring (entrypoints, route handlers)
+- Type everything public: parameters, returns, attributes, and exported module symbols
+- Avoid `Any` and untyped `dict`/`list`; prefer generics, `Protocol`, `TypedDict`, dataclasses, and Pydantic models
+- Validate at boundaries (I/O) and keep the domain core pure and typed
+- Treat static typing as a gate: run `pyright` (strict) or `mypy --strict` in CI
 
 ---
 
@@ -109,40 +128,67 @@ Don't:
 
 ## 3. Type Hints Strategy
 
-### When to Type
+### Strong Typing Defaults
 
 ```
+Type hints are mandatory for this skill.
+
 Always type:
-├── Function parameters
+├── Function/method parameters (including *args/**kwargs when used)
 ├── Return types
 ├── Class attributes
-├── Public APIs
+├── Public APIs + I/O boundaries
 
-Can skip:
-├── Local variables (let inference work)
-├── One-off scripts
-├── Tests (usually)
+Prefer inference only for simple locals; annotate anything non-obvious.
+
+Avoid:
+├── Any (unless isolated behind a boundary with a clear reason)
+├── dict/list without type parameters
+└── "stringly-typed" data (use Enums/Literals/NewType)
 ```
 
 ### Common Type Patterns
 
 ```python
-# These are patterns, understand them:
+from __future__ import annotations
 
-# Optional → might be None
-from typing import Optional
-def find_user(id: int) -> Optional[User]: ...
+from dataclasses import dataclass
+from typing import Callable, NewType, Protocol, TypedDict
 
-# Union → one of multiple types
-def process(data: str | dict) -> None: ...
+UserId = NewType("UserId", int)
+
+@dataclass(frozen=True, slots=True)
+class User:
+    id: UserId
+    email: str
+
+# Optional/union
+def find_user(user_id: UserId) -> User | None: ...
+
+# Avoid untyped dicts: use TypedDict for dict-shaped data
+class UserPayload(TypedDict):
+    id: int
+    email: str
+
+def process(payload: UserPayload) -> None: ...
 
 # Generic collections
-def get_items() -> list[Item]: ...
-def get_mapping() -> dict[str, int]: ...
+def get_users() -> list[User]: ...
+def get_counts() -> dict[str, int]: ...
 
 # Callable
-from typing import Callable
-def apply(fn: Callable[[int], str]) -> str: ...
+def apply(fn: Callable[[User], str], user: User) -> str: ...
+
+# OOP + typing (services + repository interface)
+class UserRepository(Protocol):
+    def get(self, user_id: UserId) -> User | None: ...
+
+class UserService:
+    def __init__(self, repo: UserRepository) -> None:
+        self._repo = repo
+
+    def find_user(self, user_id: UserId) -> User | None:
+        return self._repo.get(user_id)
 ```
 
 ### Pydantic for Validation
@@ -159,6 +205,10 @@ Benefits:
 ├── Auto-generated JSON schema
 ├── Works with FastAPI natively
 └── Clear error messages
+
+Rule of thumb:
+├── Pydantic models at boundaries (HTTP, env/config, message queues)
+└── Typed domain models (dataclasses/classes) inside the core
 ```
 
 ---
@@ -413,7 +463,8 @@ Before implementing:
 - [ ] **Asked user about framework preference?**
 - [ ] **Chosen framework for THIS context?** (not just default)
 - [ ] **Decided async vs sync?**
-- [ ] **Planned type hint strategy?**
+- [ ] **Designed OOP boundaries?** (wiring/routes → services/use-cases → repos/adapters)
+- [ ] **Enforced strict typing?** (pyright strict or `mypy --strict`; minimal `Any`)
 - [ ] **Defined project structure?**
 - [ ] **Planned error handling?**
 - [ ] **Considered background tasks?**
@@ -426,6 +477,8 @@ Before implementing:
 - Default to Django for simple APIs (FastAPI may be better)
 - Use sync libraries in async code
 - Skip type hints for public APIs
+- Use `Any` as an escape hatch (hide type errors)
+- Pass raw `dict`/JSON through the domain layer (use Pydantic/TypedDict at boundaries, domain classes inside)
 - Put business logic in routes/views
 - Ignore N+1 queries
 - Mix async and sync carelessly
@@ -434,7 +487,9 @@ Before implementing:
 - Choose framework based on context
 - Ask about async requirements
 - Use Pydantic for validation
+- Use `Protocol` interfaces for deps + DI (repos/clients)
 - Separate concerns (routes → services → repos)
+- Run a strict type checker in CI (pyright or mypy)
 - Test critical paths
 
 ---
