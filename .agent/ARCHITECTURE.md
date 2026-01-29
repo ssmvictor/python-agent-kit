@@ -4,32 +4,32 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 Antigravity Kit is a modular system consisting of:
 
-- **22 Specialist Agents** - Role-based AI personas
-- **35 Skills** - Domain-specific knowledge modules (on-premise focused)
-- **11 Workflows** - Slash command procedures
-- **5 Master Scripts** - Validation and automation
+- Specialist agents - role-based AI personas
+- Skills - domain-specific knowledge modules (on-premise focused)
+- Workflows - slash command procedures (see `docs/workflows.md`)
+- Scripts - validation and automation helpers (see `.agent/scripts`)
 
 ---
 
-## 🏗️ Directory Structure
+## Directory structure
 
 ```plaintext
 .agent/
 ├── ARCHITECTURE.md          # This file
-├── agents/                  # 19 Specialist Agents
-├── skills/                  # 30 Skills
-├── workflows/               # 11 Slash Commands
-├── rules/                   # Global Rules
-└── scripts/                 # 4 Master Scripts
+├── agents/                  # Specialist agents
+├── skills/                  # Skills
+├── workflows/               # Workflows (slash commands)
+├── rules/                   # Global rules
+└── scripts/                 # Core scripts
 ```
 
 ---
 
-## 🧩 Agents (22)
+## Agents
 
 Specialist AI personas for different domains.
 
@@ -60,7 +60,7 @@ Specialist AI personas for different domains.
 
 ---
 
-## 🧩 Skills (35)
+## Skills
 
 Modular knowledge domains that agents can load on-demand based on task context.
 
@@ -148,27 +148,22 @@ Modular knowledge domains that agents can load on-demand based on task context.
 
 ---
 
-## 🔄 Workflows (11)
+## Workflows
 
-Slash command procedures. Invoke with `/command`.
+Slash command procedures in `.agent/workflows/`. Invoke with `/command`.
 
 | Command | Description |
 | ------- | ----------- |
-| `/brainstorm` | Socratic discovery |
-| `/create` | Create new features |
-| `/debug` | Debug issues |
-| `/deploy` | Deploy application |
-| `/enhance` | Improve existing code |
+| `/test` | Run tests consistently |
+| `/deploy` | Deploy with checklist and rollback planning |
+| `/strict` | Enterprise bar validation (security + lint + tests) |
 | `/orchestrate` | Multi-agent coordination |
-| `/plan` | Task breakdown |
-| `/preview` | Preview changes |
-| `/status` | Check project status |
-| `/test` | Run tests |
-| `/ui-ux-pro-max` | Design with 50 styles |
+
+See `docs/workflows.md` for details and examples.
 
 ---
 
-## 🎯 Skill Loading Protocol
+## Skill loading protocol
 
 ```plaintext
 User Request → Skill Description Match → Load SKILL.md
@@ -188,58 +183,36 @@ skill-name/
 └── assets/            # (Optional) Images, logos
 ```
 
-### Skill Maturity Tiers
+### Skill maturity tiers
 
 Skills are classified by maturity level based on their depth and structure:
 
-| Tier | Criteria | Count |
-|------|----------|-------|
-| **Pro** | SKILL.md + references/ + scripts/ + assets (10+ files) | 3 |
-| **Standard** | SKILL.md + references/ OR scripts/ (2-9 files) | 15 |
-| **Lite** | SKILL.md only (1 file) | 16 |
+| Tier | Criteria |
+|------|----------|
+| **Pro** | SKILL.md + references/ + scripts/ + assets (10+ files) |
+| **Standard** | SKILL.md + references/ OR scripts/ (2-9 files) |
+| **Lite** | SKILL.md only (1 file) |
 
-#### 🏆 Pro Skills (3)
+To list skills by tier (and validate that every skill defines a tier), run:
 
-| Skill | Files |
-|-------|-------|
-| `app-builder` | 20 |
-| `api-patterns` | 12 |
-| `frontend-design` | 10 |
-
-#### 📦 Standard Skills (15)
-
-| Skill | Files | Skill | Files |
-|-------|-------|-------|-------|
-| `database-design` | 8 | `architecture` | 6 |
-| `data-processing` | 6 | `database-connectors` | 5 |
-| `enterprise-automation` | 5 | `office-integration` | 5 |
-| `file-integration` | 3 | `scheduled-tasks` | 3 |
-| `commit-critic` | 3 | `lint-and-validate` | 3 |
-| `vulnerability-scanner` | 3 | `brainstorming` | 2 |
-| `performance-profiling` | 2 | `testing-patterns` | 2 |
-| `webapp-testing` | 2 | | |
-
-#### 📄 Lite Skills (16)
-
-`behavioral-modes`, `clean-code`, `code-review-checklist`, `deployment-procedures`, `documentation-templates`, `intelligent-routing`, `mcp-builder`, `parallel-agents`, `plan-writing`, `powershell-windows`, `python-patterns`, `red-team-tactics`, `server-management`, `systematic-debugging`, `tailwind-patterns`, `tdd-workflow`
-
-**Audit script:** `python .agent/scripts/skill_tier_audit.py`
+`python .agent/scripts/skill_tier_audit.py`
 
 ---
 
-## 📝 Scripts (5)
+## Scripts
 
 Master validation scripts that orchestrate skill-level scripts.
 
-### Master Scripts
+### Core scripts
 
 | Script | Purpose | When to Use |
 | ------ | ------- | ----------- |
+| `kit_integrity_checker.py` | Validates agent/skill references + frontmatter | Pre-commit, CI |
 | `checklist.py` | Priority-based validation (Core checks) | Development, pre-commit |
 | `verify_all.py` | Comprehensive verification (All checks) | Pre-deployment, releases |
 | `auto_preview.py` | Auto preview server management | Local development |
 | `session_manager.py` | Session state management | Agent coordination |
-| `kit_integrity_checker.py` | Validates agent/skill references | Pre-commit, CI |
+| `skill_tier_audit.py` | Lists skills by tier | Maintenance |
 
 ### Usage
 
@@ -260,34 +233,35 @@ python .agent/scripts/verify_all.py . --url http://localhost:3000
 - Schema Validation
 - Test Suite
 - UX Audit
-- SEO Check
+
+If a URL is provided, it also runs:
+
+- Lighthouse (Core Web Vitals)
+- Playwright E2E
 
 **verify_all.py** (Full suite):
 
 - Everything in checklist.py PLUS:
-- Lighthouse (Core Web Vitals)
-- Playwright E2E
-- Bundle Analysis
-- Mobile Audit
-- i18n Check
+- Accessibility Check
+- Type Coverage
 
-For details, see [scripts/README.md](scripts/README.md)
+For details, see the script docstrings in `.agent/scripts`.
 
 ---
 
-## 📊 Statistics
+## Statistics
 
 | Metric | Value |
 | ------ | ----- |
 | **Total Agents** | 22 |
-| **Total Skills** | 34 |
-| **Total Workflows** | 11 |
-| **Total Scripts** | 4 (master) + skill scripts |
+| **Total Skills** | 35 |
+| **Total Workflows** | 4 |
+| **Total Scripts** | 6 (core) + skill scripts |
 | **Coverage** | Web, backend, security, testing, on-premise, data, automation |
 
 ---
 
-## 🔗 Quick Reference
+## Quick reference
 
 | Need | Agent | Skills |
 | ---- | ----- | ------ |

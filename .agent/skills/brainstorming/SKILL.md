@@ -1,7 +1,8 @@
 ---
 name: brainstorming
 description: Socratic questioning protocol + user communication. REQUIRED for complex requests, new features, or unclear requirements. Includes progress reporting and error handling.
-...
+tier: lite
+---
 ### Question Format
 
 

@@ -2,10 +2,10 @@
 """
 Kit Integrity Checker
 
-Valida consistência do kit .agent:
-- Skills referenciadas em agents existem
-- Agents citados em orchestrator/rules existem
-- Frontmatter tem campos obrigatórios
+Validates `.agent` kit consistency:
+- Skills referenced by agents exist
+- Agents referenced by orchestrator/rules exist
+- Frontmatter includes required fields
 """
 
 import os
@@ -18,7 +18,7 @@ from typing import Optional
 
 @dataclass
 class ValidationResult:
-    """Resultado da validação."""
+    """Validation result."""
     missing_skills: list[tuple[str, str]] = field(default_factory=list)
     missing_agents: list[tuple[str, str]] = field(default_factory=list)
     invalid_frontmatter: list[tuple[str, str]] = field(default_factory=list)
@@ -34,7 +34,7 @@ class ValidationResult:
 
 
 class KitIntegrityChecker:
-    """Verificador de integridade do kit .agent."""
+    """Integrity checker for the `.agent` kit."""
     
     REQUIRED_FRONTMATTER = ['name', 'description']
     OPTIONAL_FRONTMATTER = ['skills', 'tools', 'model', 'tier']
@@ -61,7 +61,7 @@ class KitIntegrityChecker:
                     self._existing_skills.add(d.name)
     
     def _parse_frontmatter(self, content: str) -> Optional[dict]:
-        """Extrai frontmatter YAML do arquivo markdown."""
+        """Extract YAML frontmatter from a markdown file."""
         match = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
         if not match:
             return None
@@ -74,13 +74,13 @@ class KitIntegrityChecker:
         return frontmatter
     
     def _check_agent(self, agent_file: Path):
-        """Verifica um arquivo de agent."""
+        """Validate an agent file."""
         content = agent_file.read_text(encoding='utf-8')
         frontmatter = self._parse_frontmatter(content)
         
         if not frontmatter:
             self.result.invalid_frontmatter.append(
-                (agent_file.name, "Frontmatter não encontrado")
+                (agent_file.name, "Frontmatter not found")
             )
             return
         
@@ -88,7 +88,7 @@ class KitIntegrityChecker:
         for field in self.REQUIRED_FRONTMATTER:
             if field not in frontmatter:
                 self.result.invalid_frontmatter.append(
-                    (agent_file.name, f"Campo obrigatório '{field}' ausente")
+                    (agent_file.name, f"Missing required field '{field}'")
                 )
         
         # Verificar skills referenciadas
@@ -100,10 +100,10 @@ class KitIntegrityChecker:
                     self.result.missing_skills.append((agent_file.name, skill))
     
     def _check_skill(self, skill_dir: Path):
-        """Verifica um diretório de skill."""
+        """Validate a skill directory."""
         skill_file = skill_dir / 'SKILL.md'
         if not skill_file.exists():
-            self.result.warnings.append(f"Skill '{skill_dir.name}' sem SKILL.md")
+            self.result.warnings.append(f"Skill '{skill_dir.name}' is missing SKILL.md")
             return
         
         content = skill_file.read_text(encoding='utf-8')
@@ -111,7 +111,7 @@ class KitIntegrityChecker:
         
         if not frontmatter:
             self.result.invalid_frontmatter.append(
-                (f"skills/{skill_dir.name}/SKILL.md", "Frontmatter não encontrado")
+                (f"skills/{skill_dir.name}/SKILL.md", "Frontmatter not found")
             )
             return
         
@@ -119,11 +119,11 @@ class KitIntegrityChecker:
         for field in self.REQUIRED_FRONTMATTER:
             if field not in frontmatter:
                 self.result.invalid_frontmatter.append(
-                    (f"skills/{skill_dir.name}/SKILL.md", f"Campo obrigatório '{field}' ausente")
+                    (f"skills/{skill_dir.name}/SKILL.md", f"Missing required field '{field}'")
                 )
     
     def _check_orchestrator_references(self):
-        """Verifica agents citados no orchestrator."""
+        """Validate agents referenced in orchestrator docs."""
         orchestrator_file = self.agents_dir / 'orchestrator.md'
         if not orchestrator_file.exists():
             return
@@ -138,7 +138,7 @@ class KitIntegrityChecker:
                 self.result.missing_agents.append(('orchestrator.md', agent_ref))
     
     def check(self) -> ValidationResult:
-        """Executa todas as verificações."""
+        """Run all checks."""
         self._load_existing_resources()
         
         # Verificar agents
@@ -158,49 +158,49 @@ class KitIntegrityChecker:
         return self.result
     
     def generate_report(self) -> str:
-        """Gera relatório em markdown."""
+        """Generate a markdown report."""
         lines = ["# Kit Integrity Report", ""]
         
         if not self.result.has_errors and not self.result.warnings:
-            lines.append("✅ **Nenhum problema encontrado!**")
+            lines.append("OK: no problems found.")
             lines.append("")
-            lines.append(f"- Agents verificados: {len(self._existing_agents)}")
-            lines.append(f"- Skills verificadas: {len(self._existing_skills)}")
+            lines.append(f"- Agents checked: {len(self._existing_agents)}")
+            lines.append(f"- Skills checked: {len(self._existing_skills)}")
             return '\n'.join(lines)
         
         # Missing Skills
         if self.result.missing_skills:
-            lines.append("## ❌ Skills Inexistentes")
+            lines.append("## Missing skills")
             lines.append("")
-            lines.append("| Arquivo | Skill Referenciada |")
-            lines.append("|---------|-------------------|")
+            lines.append("| File | Referenced skill |")
+            lines.append("|------|------------------|")
             for file, skill in self.result.missing_skills:
                 lines.append(f"| `{file}` | `{skill}` |")
             lines.append("")
         
         # Missing Agents
         if self.result.missing_agents:
-            lines.append("## ❌ Agents Inexistentes")
+            lines.append("## Missing agents")
             lines.append("")
-            lines.append("| Arquivo | Agent Citado |")
-            lines.append("|---------|-------------|")
+            lines.append("| File | Referenced agent |")
+            lines.append("|------|------------------|")
             for file, agent in self.result.missing_agents:
                 lines.append(f"| `{file}` | `{agent}` |")
             lines.append("")
         
         # Invalid Frontmatter
         if self.result.invalid_frontmatter:
-            lines.append("## ⚠️ Frontmatter Inválido")
+            lines.append("## Invalid frontmatter")
             lines.append("")
-            lines.append("| Arquivo | Problema |")
-            lines.append("|---------|----------|")
+            lines.append("| File | Problem |")
+            lines.append("|------|---------|")
             for file, problem in self.result.invalid_frontmatter:
                 lines.append(f"| `{file}` | {problem} |")
             lines.append("")
         
         # Warnings
         if self.result.warnings:
-            lines.append("## ⚠️ Avisos")
+            lines.append("## Warnings")
             lines.append("")
             for warning in self.result.warnings:
                 lines.append(f"- {warning}")
@@ -209,14 +209,14 @@ class KitIntegrityChecker:
         # Summary
         lines.append("---")
         lines.append("")
-        lines.append(f"**Total de erros:** {self.result.error_count}")
-        lines.append(f"**Total de avisos:** {len(self.result.warnings)}")
+        lines.append(f"**Total errors:** {self.result.error_count}")
+        lines.append(f"**Total warnings:** {len(self.result.warnings)}")
         
         return '\n'.join(lines)
 
 
 def main():
-    """Ponto de entrada principal."""
+    """Main entry point."""
     # Determinar diretório .agent
     if len(sys.argv) > 1:
         agent_dir = Path(sys.argv[1])
@@ -224,7 +224,7 @@ def main():
         agent_dir = Path(__file__).parent.parent
     
     if not agent_dir.exists():
-        print(f"❌ Diretório não encontrado: {agent_dir}")
+        print(f"ERROR: directory not found: {agent_dir}")
         sys.exit(1)
     
     checker = KitIntegrityChecker(agent_dir)

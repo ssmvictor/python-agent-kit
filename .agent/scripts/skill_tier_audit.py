@@ -94,13 +94,13 @@ def main() -> int:
         if not tier_skills:
             continue
         
-        icon = {'pro': '🏆', 'standard': '📦', 'lite': '📄', '[MISSING]': '⚠️'}
-        print(f"\n{icon[tier_name]} {tier_name.upper()} ({len(tier_skills)} skills)")
+        label = {'pro': '[PRO]', 'standard': '[STD]', 'lite': '[LITE]', '[MISSING]': '[WARN]'}
+        print(f"\n{label[tier_name]} {tier_name.upper()} ({len(tier_skills)} skills)")
         print("-" * 40)
         
         for skill in sorted(tier_skills, key=lambda s: s.name):
-            refs = '📚' if skill.has_references else '  '
-            scripts = '🔧' if skill.has_scripts else '  '
+            refs = 'R' if skill.has_references else '-'
+            scripts = 'S' if skill.has_scripts else '-'
             print(f"  {refs} {scripts} {skill.name:<30} ({skill.file_count} files)")
     
     # Summary
@@ -114,10 +114,10 @@ def main() -> int:
     
     missing_count = len(tiers['[MISSING]'])
     if missing_count > 0:
-        print(f"  ⚠️  Missing:    {missing_count}")
+        print(f"  Missing:      {missing_count}")
         return 1
     
-    print("\n✅ All skills have tier defined!")
+    print("\nOK: all skills have tier defined")
     return 0
 
 
