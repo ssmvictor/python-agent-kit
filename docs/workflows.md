@@ -1,43 +1,43 @@
-# Documentação de Workflows do Antigravity Kit
+# Antigravity Kit Workflow Reference
 
-Este documento descreve os **workflows (slash commands)** disponíveis em `.agent/workflows/` e **quando usar cada um**, com **casos de uso** e **exemplos práticos**.
+This document describes the available workflows (slash commands) in `.agent/workflows/`, when to use each one, and practical examples.
 
 ---
 
-## Visão geral
+## Overview
 
-Os workflows são "modos de trabalho" acionados por comandos como `/test`, `/deploy`, `/strict`, etc. Eles padronizam **processo + formato de saída**, reduzindo ambiguidade e melhorando previsibilidade em tarefas de engenharia.
+Workflows are "ways of working" triggered by commands like `/test`, `/deploy`, `/strict`, etc. They standardize process and output format, reducing ambiguity and improving predictability for engineering tasks.
 
-> **Filosofia:** Fast by default. Os workflows restantes são focados em validação, deploy e orquestração de alta confiança. Para tarefas simples (criar, debugar, planejar), use o modo normal do agente.
+> Philosophy: fast by default. Workflows are reserved for high-confidence validation, deployment, and multi-agent orchestration.
 
-### Mapa rápido (intenção → workflow)
+### Quick map (intent -> workflow)
 
-| Você quer… | Use |
+| You want... | Use |
 |---|---|
-| Rodar testes, gerar cobertura, triar falhas | `/test` |
-| Fazer deploy com checklist e rollback | `/deploy` |
-| Validação rigorosa: security + lint + tests (enterprise bar) | `/strict` |
-| Coordenar múltiplos especialistas (3+ agentes) | `/orchestrate` |
+| Run tests, generate coverage, triage failures | `/test` |
+| Deploy with a checklist and rollback plan | `/deploy` |
+| Enterprise bar validation: security + lint + tests | `/strict` |
+| Coordinate multiple specialists (3+ agents) | `/orchestrate` |
 
 ---
 
-## 1) `/test` — Tests (Generate + Run + Triage)
+## 1) `/test` - Tests (Generate + Run + Triage)
 
-**Objetivo:** rodar testes consistentemente (Python/Node), gerar testes para código modificado, triar falhas rapidamente.
+**Goal:** run tests consistently (Python/Node), optionally generate tests for changed code, and triage failures quickly.
 
-**Quando usar (casos de uso):**
-- Antes de refatorar: proteger comportamento.
-- Ao corrigir bug: criar teste de regressão.
-- Para elevar confiança em feature nova.
-- Para checar cobertura e identificar pontos frágeis.
+**When to use:**
+- Before refactoring: protect behavior.
+- When fixing a bug: add a regression test.
+- To increase confidence in a new feature.
+- To check coverage and identify weak spots.
 
-**Ações (via argumentos):**
-- `run` (padrão): executa a suíte de testes
-- `coverage`: roda com relatório de cobertura
-- `generate`: cria testes para a mudança descrita, depois executa
-- `e2e`: roda Playwright (para web apps)
+**Actions (via arguments):**
+- `run` (default): runs the test suite
+- `coverage`: runs with coverage report
+- `generate`: creates tests for the described change, then runs
+- `e2e`: runs Playwright (for web apps)
 
-**Comandos executados:**
+**Commands executed:**
 ```bash
 # Run suite
 python .agent/skills/testing-patterns/scripts/test_runner.py .
@@ -49,7 +49,7 @@ python .agent/skills/testing-patterns/scripts/test_runner.py . --coverage
 python .agent/skills/webapp-testing/scripts/playwright_runner.py .
 ```
 
-**Exemplos:**
+**Examples:**
 ```text
 /test
 /test coverage
@@ -59,34 +59,34 @@ python .agent/skills/webapp-testing/scripts/playwright_runner.py .
 
 ---
 
-## 2) `/deploy` — Production Deployment (Strict)
+## 2) `/deploy` - Production Deployment (Strict)
 
-**Objetivo:** fazer deploy de forma segura com **pré-checks**, execução e **plano de rollback**.
+**Goal:** deploy safely with pre-checks, execution steps, and a rollback plan.
 
-**Quando usar (casos de uso):**
-- Publicar staging para validação externa.
-- Subir produção com checklist mínimo (lint, testes, audit).
-- Reverter versão rapidamente.
+**When to use:**
+- Publish staging for external validation.
+- Deploy to production with a minimum checklist (lint, tests, audit).
+- Roll back quickly.
 
-**Informações necessárias (perguntar se faltar):**
-1. Target environment: **staging** ou **production**
-2. Deployment surface: Vercel / Netlify / Fly.io / Docker / Outro
-3. Uma **URL** para validar (staging/prod) ou preview local (para perf/e2e)
+**Required information (ask if missing):**
+1. Target environment: **staging** or **production**
+2. Deployment surface: Vercel / Netlify / Fly.io / Docker / Other
+3. A URL to validate (staging/prod) or a local preview URL (for perf/e2e)
 
-**Pre-flight (obrigatório):**
-1. Resumir o que está sendo deployado (commits, changes, risk areas)
-2. Rodar validações:
+**Pre-flight (required):**
+1. Summarize what is being deployed (commits, changes, risk areas)
+2. Run validations:
    - `python .agent/scripts/checklist.py .`
-   - Se tiver URL: `python .agent/scripts/checklist.py . --url <URL>`
-3. Stop conditions: se Security/Lint falhar, **não prossiga**
+   - If you have a URL: `python .agent/scripts/checklist.py . --url <URL>`
+3. Stop conditions: if Security/Lint fails, do not proceed
 
-**Plataformas suportadas:**
+**Supported platforms:**
 - **Vercel**: `vercel --prod`
 - **Netlify**: `netlify deploy --prod`
 - **Fly.io**: `fly deploy`
 - **Docker**: `docker compose pull && docker compose up -d`
 
-**Exemplos:**
+**Examples:**
 ```text
 /deploy staging to Vercel
 /deploy production
@@ -95,34 +95,34 @@ python .agent/skills/webapp-testing/scripts/playwright_runner.py .
 
 ---
 
-## 3) `/strict` — Enterprise Bar (Opt-in)
+## 3) `/strict` - Enterprise Bar (Opt-in)
 
-**Objetivo:** validação rigorosa com **predictability**: security + lint + tests, com relatório de remediação.
+**Goal:** strict validation with predictable output: security + lint + tests, plus remediation guidance.
 
-**Quando usar (casos de uso):**
-- Quando o usuário pedir explicitamente "rigor/enterprise/production-grade".
-- Antes de merges críticos.
-- Para garantir barra enterprise em mudanças importantes.
+**When to use:**
+- When the user explicitly requests strict/enterprise/production-grade.
+- Before critical merges.
+- To ensure the enterprise bar on an important change.
 
-**Este workflow é opt-in.** Não aplique a menos que o usuário chame `/strict` ou peça rigor.
+**This workflow is opt-in.** Do not apply it unless the user invokes `/strict` or explicitly asks for strictness.
 
 **Procedure:**
-1. **Summarize the change** — escopo, risk areas, módulos afetados
-2. **Run the kit checklist:**
+1. Summarize the change (scope, risk areas, affected modules)
+2. Run the kit checklist:
    - `python .agent/scripts/checklist.py .`
-   - Se tiver URL: `python .agent/scripts/checklist.py . --url <URL>`
-3. **Interpret results** (ordem de prioridade):
+   - If you have a URL: `python .agent/scripts/checklist.py . --url <URL>`
+3. Interpret results (priority order):
    1. Security
    2. Lint / type checks
-   3. Schema validation (se aplicável)
+   3. Schema validation (if applicable)
    4. Tests
-   5. UX / accessibility (se aplicável)
-4. **Remediate** — corrija Critical blockers primeiro (Security/Lint)
-5. **Exit criteria:**
-   - ✅ `checklist.py` retorna sucesso
-   - ✅ Forneça seção "Verification" com comandos exatos
+   5. UX / accessibility (if applicable)
+4. Remediate: fix critical blockers first (Security/Lint)
+5. Exit criteria:
+   - `checklist.py` returns success
+   - Provide a "How to verify" section with exact commands
 
-**Exemplos:**
+**Examples:**
 ```text
 /strict
 /strict for authentication module
@@ -131,34 +131,34 @@ python .agent/skills/webapp-testing/scripts/playwright_runner.py .
 
 ---
 
-## 4) `/orchestrate` — Multi-Agent (Strict)
+## 4) `/orchestrate` - Multi-Agent (Strict)
 
-**Objetivo:** coordenar especialistas para trabalhos multi-domínio ou de alta confiança.
+**Goal:** coordinate specialists for multi-domain or high-confidence work.
 
-**Quando usar (casos de uso):**
-- Mudanças multi-domínio (backend + DB + security + UI).
-- Refactors grandes / migrações.
+**When to use:**
+- Multi-domain changes (backend + DB + security + UI).
+- Large refactors / migrations.
 - Incident response / deep debugging.
-- Quando o usuário precisa de "high confidence".
+- When the user needs "high confidence".
 
-**Regras de orquestração:**
-1. **Mínimo de especialistas:** envolva **≥ 3** agentes de domínio (backend, frontend, database, security, devops, debugger, code-archaeologist)
-2. **Handoffs claros:** cada especialista deve retornar:
+**Orchestration rules:**
+1. Minimum specialists: involve >= 3 domain agents (backend, frontend, database, security, devops, debugger, code-archaeologist)
+2. Clear handoffs: each specialist returns:
    - findings
-   - recomendações concretas
-   - riscos/edge cases
-3. **Validação é obrigatória:** execute pelo menos:
+   - concrete recommendations
+   - risks/edge cases
+3. Validation is required: execute at least:
    - `python .agent/skills/vulnerability-scanner/scripts/security_scan.py .`
    - `python .agent/skills/lint-and-validate/scripts/lint_runner.py .`
-   - `python .agent/skills/testing-patterns/scripts/test_runner.py .` (quando código mudar)
+   - `python .agent/skills/testing-patterns/scripts/test_runner.py .` (when code changes)
 
 **Workflow:**
-1. **Problem brief** — goal, constraints, acceptance criteria
-2. **Specialist passes** — security, architecture/backend, DB/schema, frontend/UX, devOps/deploy (conforme aplicável)
-3. **Synthesis** — merge recommendations em plano único, identifique conflitos
-4. **Verification plan** — liste comandos e defina exit criteria
+1. Problem brief: goal, constraints, acceptance criteria
+2. Specialist passes: security, architecture/backend, DB/schema, frontend/UX, devOps/deploy (as applicable)
+3. Synthesis: merge recommendations into a single plan, identify conflicts
+4. Verification plan: list commands and define exit criteria
 
-**Exemplos:**
+**Examples:**
 ```text
 /orchestrate refactor authentication system
 /orchestrate migrate from Firebase to PostgreSQL
@@ -167,28 +167,28 @@ python .agent/skills/webapp-testing/scripts/playwright_runner.py .
 
 ---
 
-## Workflows Removidos (Migrados para Modo Normal)
+## Removed workflows (migrated to normal mode)
 
-Os seguintes workflows foram **removidos** e suas funcionalidades migradas para o modo normal do agente:
+The following workflows were removed and their functionality moved into the normal agent mode:
 
-| Workflow | Alternativa |
+| Workflow | Alternative |
 |---|---|
-| `/brainstorm` | Faça perguntas diretas no modo normal. O agente explorará opções naturalmente. |
-| `/plan` | Use `/orchestrate` com foco em planejamento, ou peça um plano no modo normal. |
-| `/create` | Use o modo normal para criar apps. Escalone para `/orchestrate` se for complexo. |
-| `/enhance` | Use o modo normal para evoluir apps. O agente detectará o estado atual automaticamente. |
-| `/debug` | Use o modo normal. Descreva o erro e o agente investigará sistematicamente. |
-| `/preview` | Use o modo normal. Peça para iniciar o servidor de preview. |
-| `/status` | Use o modo normal. Peça o status do projeto. |
-| `/ui-ux-pro-max` | Use o modo normal para trabalhos de UI/UX. O agente aplicará as regras de design. |
+| `/brainstorm` | Ask direct questions in normal mode; the agent will explore options naturally. |
+| `/plan` | Use `/orchestrate` with a planning focus, or ask for a plan in normal mode. |
+| `/create` | Use normal mode to create apps; escalate to `/orchestrate` if complex. |
+| `/enhance` | Use normal mode to evolve apps; the agent will infer current state. |
+| `/debug` | Use normal mode; describe the error and the agent will investigate systematically. |
+| `/preview` | Use normal mode; ask to start the preview server. |
+| `/status` | Use normal mode; ask for project status. |
+| `/ui-ux-pro-max` | Use normal mode for UI/UX work; the agent will apply design rules. |
 
 ---
 
-## Resumo da Filosofia
+## Philosophy
 
-> **Fast by default, strict when needed.**
+> Fast by default, strict when needed.
 
-- **Modo normal:** Para 80% das tarefas (criar, debugar, planejar, evoluir). Rápido, direto, sem cerimônia.
-- **Workflows (`/test`, `/deploy`, `/strict`, `/orchestrate`):** Para validação, deploy e orquestração de alta confiança. Rigoroso, previsível, com checklists.
+- Normal mode: for most tasks (build, debug, plan, enhance). Fast, direct, low ceremony.
+- Workflows (`/test`, `/deploy`, `/strict`, `/orchestrate`): for validation, deployment, and high-confidence orchestration.
 
-Escolha o workflow baseado no **risco e complexidade**, não no hábito.
+Pick the workflow based on risk and complexity, not habit.

@@ -1,53 +1,64 @@
 # Antigravity Kit
 
-> 🚀 Kit de expansão de capacidades para IA Agents - Foco Enterprise
+> Enterprise-focused capability expansion kit for AI agents
 
-Sistema modular de **agents**, **skills** e **workflows** para desenvolvimento Python on-premise.
+A modular system of agents, skills, workflows, and validation scripts for on-premise Python development.
 
 ---
 
-## ⚡ Quick Start
+## Quick start
 
 ```bash
-# Validar integridade do kit
+# Validate kit integrity
 python .agent/scripts/kit_integrity_checker.py .agent
 
-# Ver checklist de verificação
+# Full checklist (STRICT-style validation)
 python .agent/scripts/checklist.py .
 ```
 
 ---
 
-## 📦 Estrutura
+## Operating modes
 
-```
+The kit supports two operating modes:
+
+- **LITE** (default): fast and direct; no automatic validators; ends with a suggested commit message.
+- **STRICT** (opt-in via `/strict`): runs validations and includes a "How to verify" section.
+
+See `docs/USAGE.md`.
+
+---
+
+## Structure
+
+```text
 .agent/
-├── agents/       # 22 Specialist Agents
-├── skills/       # 35 Domain Skills
-├── workflows/    # 11 Slash Commands
-├── scripts/      # 5 Master Scripts
-└── rules/        # Global Rules
+├── agents/     # Specialist agents
+├── skills/     # Domain skills
+├── workflows/  # Slash command procedures
+├── scripts/    # Validation + automation scripts
+└── rules/      # Global rules
 ```
 
 ---
 
-## 🎯 Foco Enterprise
+## Enterprise focus
 
-| Área | Tecnologias |
-|------|-------------|
-| **Backend** | Python, FastAPI, APIs, integrações |
+| Area | Technologies |
+|---|---|
+| **Backend** | Python, FastAPI, APIs, integrations |
 | **Database** | Oracle, ODBC, connection pooling |
-| **Automação** | pywin32, COM, Selenium, Office |
+| **Automation** | pywin32, COM, Selenium, Office |
 | **ETL** | pandas, polars, pipelines |
-| **Integração** | ERP sync, idempotência, retry patterns |
+| **Integration** | ERP sync, idempotency, retry patterns |
 
 ---
 
-## 🤖 Agents Principais
+## Key agents
 
-| Agent | Foco |
-|-------|------|
-| `backend-specialist` | APIs Python, integrações |
+| Agent | Focus |
+|---|---|
+| `backend-specialist` | Python APIs, integrations |
 | `database-connector` | Oracle, ODBC |
 | `data-engineer` | ETL, pandas/polars |
 | `automation-specialist` | Windows, COM |
@@ -58,48 +69,39 @@ python .agent/scripts/checklist.py .
 
 ---
 
-## 🧩 Skills Core
+## Core skills
 
-- `python-patterns` - Padrões Python modernos
-- `api-patterns` - REST, GraphQL, contratos
+- `python-patterns` - Modern Python patterns
+- `api-patterns` - REST, GraphQL, contracts
 - `database-connectors` - cx_Oracle, pyodbc
-- `erp-integration-patterns` - Sync, idempotência
+- `erp-integration-patterns` - Sync, idempotency
 - `enterprise-automation` - Windows automation
 - `office-integration` - Excel, Word, PDF
 
 ---
 
-## 📋 Workflows
+## Workflows
 
-| Comando | Descrição |
-|---------|-----------|
-| `/plan` | Criar plano de implementação |
-| `/create` | Criar nova aplicação |
-| `/debug` | Modo debug sistemático |
-| `/test` | Gerar e executar testes |
-| `/deploy` | Deploy com checklist |
-
----
-
-## 📖 Documentação
-
-- [ARCHITECTURE.md](.agent/ARCHITECTURE.md) - Visão completa do kit
-- [GEMINI.md](.agent/rules/GEMINI.md) - Regras globais da IA
+| Command | Purpose |
+|---|---|
+| `/test` | Run tests consistently (and help triage failures) |
+| `/deploy` | Production deployment checklist + rollback planning |
+| `/strict` | Enterprise bar: security + lint + tests |
+| `/orchestrate` | Multi-agent coordination for multi-domain changes |
 
 ---
 
-## ✅ Validação
+## Documentation
 
-```bash
-# Verificar referências quebradas
-python .agent/scripts/kit_integrity_checker.py .agent
-
-# Checklist completo
-python .agent/scripts/checklist.py .
-```
+- `docs/USAGE.md` - Operating modes (LITE/STRICT)
+- `docs/workflows.md` - Workflow reference
+- `docs/AGENTS.md` - Agent catalog
+- `docs/SKILLS.md` - Skill catalog
+- `.agent/ARCHITECTURE.md` - Architecture overview
+- `.agent/rules/GEMINI.md` - Always-on rules
 
 ---
 
-## 📜 License
+## License
 
 MIT
