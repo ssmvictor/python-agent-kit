@@ -6,181 +6,24 @@ Este documento descreve os **workflows (slash commands)** disponíveis em `.agen
 
 ## Visão geral
 
-Os workflows são “modos de trabalho” acionados por comandos como `/plan`, `/debug`, `/deploy`, etc. Eles padronizam **processo + formato de saída**, reduzindo ambiguidade e melhorando previsibilidade em tarefas de engenharia.
+Os workflows são "modos de trabalho" acionados por comandos como `/test`, `/deploy`, `/strict`, etc. Eles padronizam **processo + formato de saída**, reduzindo ambiguidade e melhorando previsibilidade em tarefas de engenharia.
+
+> **Filosofia:** Fast by default. Os workflows restantes são focados em validação, deploy e orquestração de alta confiança. Para tarefas simples (criar, debugar, planejar), use o modo normal do agente.
 
 ### Mapa rápido (intenção → workflow)
 
 | Você quer… | Use |
 |---|---|
-| Explorar opções antes de decidir | `/brainstorm` |
-| Planejar com profundidade, sem escrever código | `/plan` |
-| Criar um app do zero com fluxo guiado | `/create` |
-| Evoluir um app existente (feature/ajuste) | `/enhance` |
-| Investigar erro/bug de forma sistemática | `/debug` |
-| Gerar/rodar testes e checar cobertura | `/test` |
-| Subir/gerenciar servidor local de preview | `/preview` |
-| Ver “quadro de status” do projeto/agentes | `/status` |
+| Rodar testes, gerar cobertura, triar falhas | `/test` |
 | Fazer deploy com checklist e rollback | `/deploy` |
+| Validação rigorosa: security + lint + tests (enterprise bar) | `/strict` |
 | Coordenar múltiplos especialistas (3+ agentes) | `/orchestrate` |
-| Projetar UI/UX com design system e guidelines | `ui-ux-pro-max` |
 
 ---
 
-## 1) `/brainstorm` — Ideação estruturada (sem código)
+## 1) `/test` — Tests (Generate + Run + Triage)
 
-**Objetivo:** explorar alternativas antes de “casar” com uma implementação.
-
-**Quando usar (casos de uso):**
-- Escolher estratégia de autenticação, cache, state management, arquitetura.
-- Decidir stack/infra (ex.: Vercel vs Fly.io vs Docker).
-- Modelar schema inicial ou abordagem de domínios.
-
-**Como funciona (resumo):**
-1. Entende o objetivo (problema, usuário, restrições).
-2. Gera **pelo menos 3 opções** com prós/contras.
-3. Compara e recomenda com justificativa.
-
-**Saída esperada (formato):**
-- Contexto
-- Opção A/B/C (descrição, prós, contras, esforço)
-- Recomendação + pergunta de direção
-
-**Exemplos:**
-```text
-/brainstorm authentication system
-/brainstorm caching strategy
-/brainstorm database schema for social app
-```
-
----
-
-## 2) `/plan` — Planejamento (gera arquivo de plano, sem código)
-
-**Objetivo:** criar um **plano executável** (arquivo de planejamento) sem escrever código.
-
-**Regra crítica:** **não escrever código** — este workflow é para produzir **apenas o plano**.
-
-**Quando usar (casos de uso):**
-- Iniciar um projeto complexo com boa decomposição.
-- Quebrar uma feature grande em etapas, riscos, decisões e checklist.
-- Definir arquitetura e milestones antes de implementar.
-
-**Artefato gerado:**
-- Um arquivo `docs/PLAN-*.md` (nome derivado do pedido).
-
-**Exemplos (mapeamento típico):**
-- `/plan e-commerce site with cart` → `docs/PLAN-ecommerce-cart.md`
-- `/plan add dark mode feature` → `docs/PLAN-dark-mode.md`
-
-**Exemplos de uso:**
-```text
-/plan SaaS dashboard with analytics
-/plan mobile app for fitness tracking
-```
-
----
-
-## 3) `/create` — Criar nova aplicação (do zero)
-
-**Objetivo:** iniciar um processo guiado de criação de app.
-
-**Quando usar (casos de uso):**
-- Projetos greenfield (blog, e-commerce, CRM, dashboards).
-- Protótipos que precisam sair do papel rápido, com stack definida.
-
-**Fluxo (alto nível):**
-1. **Análise do pedido** (e perguntas diretas se faltar informação).
-2. **Planejamento** com `project-planner` (quebra de tarefas, stack, estrutura).
-3. **Construção** (após “aprovação” do plano), orquestrando:
-   - `database-architect` → schema
-   - `backend-specialist` → API
-   - `frontend-specialist` → UI
-4. **Preview** (via `auto_preview.py`) e entrega de URL.
-
-**Exemplos:**
-```text
-/create blog site
-/create e-commerce app with product listing and cart
-/create crm system with customer management
-```
-
-**Antes de começar (quando o pedido estiver genérico):**
-- Tipo de aplicação?
-- Funcionalidades básicas?
-- Quem vai usar?
-
----
-
-## 4) `/enhance` — Evoluir aplicação existente (iterativo)
-
-**Objetivo:** adicionar/alterar features em um projeto já existente.
-
-**Quando usar (casos de uso):**
-- Implementar dark mode, painel admin, busca, responsividade.
-- Ajustar fluxos existentes (perfil, checkout, telas específicas).
-- Pequenas refatorações com teste e validação.
-
-**Fluxo (alto nível):**
-1. **Entender estado atual**
-   - Levantar contexto com `session_manager.py info` (stack, features, estrutura).
-2. **Planejar mudanças**
-   - Arquivos afetados, dependências, impacto.
-3. **Apresentar plano** (principalmente para mudanças grandes).
-4. **Aplicar**
-   - Acionar agentes relevantes, alterar, testar.
-5. **Atualizar preview**
-
-**Boas práticas / cautelas:**
-- Pedir aprovação para mudanças grandes.
-- Alertar conflitos (“trocar para Firebase” em projeto PostgreSQL).
-- Commitar cada mudança.
-
-**Exemplos:**
-```text
-/enhance add dark mode
-/enhance build admin panel
-/enhance add search feature
-/enhance make responsive
-```
-
----
-
-## 5) `/debug` — Investigação sistemática de bugs
-
-**Objetivo:** depurar com método: coletar dados → hipóteses → teste → causa raiz → correção → prevenção.
-
-**Quando usar (casos de uso):**
-- Erros 500, exceções, comportamento inesperado.
-- Regressões após mudança recente.
-- “Funciona na minha máquina” / bugs intermitentes.
-
-**O que você deve fornecer (para acelerar):**
-- Mensagem de erro completa (stack trace).
-- Passos de reprodução.
-- Esperado vs atual.
-- Mudanças recentes.
-
-**Saída esperada (relatório):**
-- Sintoma
-- Info coletada (arquivo/linha/erro)
-- Hipóteses (ordenadas)
-- Investigação (o que foi checado → resultado)
-- Causa raiz
-- Fix (antes/depois)
-- Prevenção (teste/validações)
-
-**Exemplos:**
-```text
-/debug login not working
-/debug API returns 500
-/debug form doesn't submit
-```
-
----
-
-## 6) `/test` — Gerar e executar testes
-
-**Objetivo:** criar testes (para arquivo/feature) e/ou executar a suíte de testes.
+**Objetivo:** rodar testes consistentemente (Python/Node), gerar testes para código modificado, triar falhas rapidamente.
 
 **Quando usar (casos de uso):**
 - Antes de refatorar: proteger comportamento.
@@ -188,213 +31,164 @@ Os workflows são “modos de trabalho” acionados por comandos como `/plan`, `
 - Para elevar confiança em feature nova.
 - Para checar cobertura e identificar pontos frágeis.
 
-**Subcomandos:**
-```text
-/test                - Run all tests
-/test [file/feature] - Generate tests for specific target
-/test coverage       - Show test coverage report
-/test watch          - Run tests in watch mode
-```
+**Ações (via argumentos):**
+- `run` (padrão): executa a suíte de testes
+- `coverage`: roda com relatório de cobertura
+- `generate`: cria testes para a mudança descrita, depois executa
+- `e2e`: roda Playwright (para web apps)
 
-**Como funciona para geração:**
-1. Analisa código (funções/métodos, edge cases, dependências).
-2. Gera casos (happy path, erros, bordas, integração quando fizer sentido).
-3. Escreve no framework do projeto (Jest/Vitest/etc.), mockando dependências externas.
+**Comandos executados:**
+```bash
+# Run suite
+python .agent/skills/testing-patterns/scripts/test_runner.py .
+
+# Coverage
+python .agent/skills/testing-patterns/scripts/test_runner.py . --coverage
+
+# E2E (web)
+python .agent/skills/webapp-testing/scripts/playwright_runner.py .
+```
 
 **Exemplos:**
 ```text
-/test src/services/auth.service.ts
-/test user registration flow
+/test
 /test coverage
-/test watch
+/test generate for user authentication
+/test e2e
 ```
 
 ---
 
-## 7) `/preview` — Gerenciar servidor local (start/stop/status)
+## 2) `/deploy` — Production Deployment (Strict)
 
-**Objetivo:** subir/parar/reiniciar e checar saúde do preview local.
-
-**Quando usar (casos de uso):**
-- Mostrar UI funcionando para validação rápida.
-- Reproduzir bug visual/comportamental em ambiente local.
-- Confirmar se a aplicação está “de pé” após alterações.
-
-**Comandos:**
-```text
-/preview           - Show current status
-/preview start     - Start server
-/preview stop      - Stop server
-/preview restart   - Restart
-/preview check     - Health check
-```
-
-**Implementação (script):**
-```bash
-python .agent/scripts/auto_preview.py start [port]
-python .agent/scripts/auto_preview.py stop
-python .agent/scripts/auto_preview.py status
-```
-
----
-
-## 8) `/status` — Painel de status do projeto e agentes
-
-**Objetivo:** dar visibilidade do estado atual do projeto (stack, features, preview, board dos agentes).
+**Objetivo:** fazer deploy de forma segura com **pré-checks**, execução e **plano de rollback**.
 
 **Quando usar (casos de uso):**
-- Acompanhar progresso (“o que já foi feito / falta fazer?”).
-- Verificar preview (URL/health).
-- Conferir estatísticas de alterações (arquivos criados/modificados).
-
-**Inclui (tipicamente):**
-- Info do projeto (nome, path, stack, features)
-- Status board de agentes (rodando, concluído, pendente)
-- Estatística de arquivos
-- Status do preview (URL + health)
-
-**Scripts usados:**
-- `python .agent/scripts/session_manager.py status`
-- `python .agent/scripts/auto_preview.py status`
-
----
-
-## 9) `/deploy` — Deploy com checklist, staging/produção e rollback
-
-**Objetivo:** padronizar deploy com **pré-checks**, execução e **relato final** (ou falha com resolução/rollback).
-
-**Quando usar (casos de uso):**
-- Publicar preview/staging para validação externa.
+- Publicar staging para validação externa.
 - Subir produção com checklist mínimo (lint, testes, audit).
 - Reverter versão rapidamente.
 
-**Subcomandos:**
+**Informações necessárias (perguntar se faltar):**
+1. Target environment: **staging** ou **production**
+2. Deployment surface: Vercel / Netlify / Fly.io / Docker / Outro
+3. Uma **URL** para validar (staging/prod) ou preview local (para perf/e2e)
+
+**Pre-flight (obrigatório):**
+1. Resumir o que está sendo deployado (commits, changes, risk areas)
+2. Rodar validações:
+   - `python .agent/scripts/checklist.py .`
+   - Se tiver URL: `python .agent/scripts/checklist.py . --url <URL>`
+3. Stop conditions: se Security/Lint falhar, **não prossiga**
+
+**Plataformas suportadas:**
+- **Vercel**: `vercel --prod`
+- **Netlify**: `netlify deploy --prod`
+- **Fly.io**: `fly deploy`
+- **Docker**: `docker compose pull && docker compose up -d`
+
+**Exemplos:**
 ```text
-/deploy            - Interactive deployment wizard
-/deploy check      - Run pre-deployment checks only
-/deploy preview    - Deploy to preview/staging
-/deploy production - Deploy to production
-/deploy rollback   - Rollback to previous version
-```
-
-**Checklist pré-deploy (exemplos):**
-- Qualidade (TS/ESLint/testes)
-- Segurança (sem secrets hardcoded, env vars documentadas, `npm audit`)
-- Performance (bundle ok, sem `console.log`, imagens otimizadas)
-- Docs (README/CHANGELOG/API docs)
-
-**Plataformas suportadas (referência):**
-- Vercel (`vercel --prod`)
-- Railway (`railway up`)
-- Fly.io (`fly deploy`)
-- Docker (`docker compose up -d`)
-
----
-
-## 10) `/orchestrate` — Orquestração multiagente (mínimo 3 agentes)
-
-**Objetivo:** resolver tarefas complexas coordenando especialistas, com protocolo e “gates” de validação.
-
-**Regra crítica:** **orquestração = mínimo 3 agentes diferentes**.
-
-**Quando usar (casos de uso):**
-- Refactors grandes com impactos em camadas.
-- Auditorias (segurança + performance + arquitetura).
-- Migrações (stack/infra/banco) e mudanças transversais.
-- Revisões profundas que exigem domínios diferentes.
-
-**Protocolo obrigatório (2 fases):**
-- **Fase 1 — Planning (sequencial):**
-  - `project-planner` cria `docs/PLAN.md`
-  - opcional: `explorer-agent` para descobrir codebase
-  - **sem agentes paralelos nesta fase**
-- **Checkpoint:** pedir aprovação explícita do usuário para iniciar implementação
-- **Fase 2 — Implementation (pode paralelizar após aprovação)**
-
-**Regra de ouro (context passing):**
-Ao chamar qualquer subagente, incluir:
-1. Pedido original do usuário (texto completo)
-2. Decisões já tomadas (respostas do usuário)
-3. Resumo do trabalho dos agentes anteriores
-4. Estado atual do plano (ex.: `docs/PLAN.md`)
-
-**Exit gate (antes de concluir):**
-- Confirmar `invoked_agents >= 3`
-- Executar ao menos um scan de segurança (ex.: `.../vulnerability-scanner/.../security_scan.py`)
-- Gerar “Orchestration Report” com agentes e resultados consolidados
-
----
-
-## 11) `ui-ux-pro-max` — Workflow de UI/UX com Design System
-
-**Objetivo:** gerar recomendações de UI/UX e um **design system completo**, com persistência para reutilização por páginas (MASTER + overrides).
-
-**Quando usar (casos de uso):**
-- Definir linguagem visual para SaaS, e-commerce, landing pages, dashboards.
-- Padronizar tipografia, cores, componentes e efeitos.
-- Acelerar decisões de UX (animação, acessibilidade, densidade de informação).
-- Guiar implementação por stack (default `html-tailwind`).
-
-### Passo-a-passo recomendado
-
-1. **Analisar requisitos**
-   - tipo de produto, estilo desejado, indústria, stack.
-2. **Gerar design system (obrigatório)**
-   ```bash
-   python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<produto> <indústria> <keywords>" --design-system [-p "Nome do Projeto"]
-   ```
-3. **Persistir design system (recomendado)**
-   ```bash
-   python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<query>" --design-system --persist -p "Project Name"
-   ```
-   Gera:
-   - `design-system/MASTER.md` (fonte global)
-   - `design-system/pages/*.md` (overrides por página)
-
-   Com override por página:
-   ```bash
-   python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard"
-   ```
-4. **Pesquisas complementares por domínio (quando necessário)**
-   - `style`, `chart`, `ux`, `typography`, `landing`, etc.
-5. **Guidelines por stack (default `html-tailwind`)**
-   ```bash
-   python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<keyword>" --stack html-tailwind
-   ```
-
-**Formato de saída:**
-- ASCII (terminal) ou Markdown (documentação):
-```bash
-python3 .../search.py "fintech crypto" --design-system
-python3 .../search.py "fintech crypto" --design-system -f markdown
+/deploy staging to Vercel
+/deploy production
+/deploy production --url https://app.example.com
 ```
 
 ---
 
-## Extra (recomendado): `tdd-workflow` — Workflow de TDD (skill)
+## 3) `/strict` — Enterprise Bar (Opt-in)
 
-Embora não esteja em `.agent/workflows/`, existe a skill **tdd-workflow** que funciona como um “workflow de qualidade”.
+**Objetivo:** validação rigorosa com **predictability**: security + lint + tests, com relatório de remediação.
 
-**Quando usar:**
-- Lógica complexa / regras de negócio (alto ROI).
-- Bugs recorrentes (regressão).
-- Interfaces críticas (pagamento, autenticação, billing).
+**Quando usar (casos de uso):**
+- Quando o usuário pedir explicitamente "rigor/enterprise/production-grade".
+- Antes de merges críticos.
+- Para garantir barra enterprise em mudanças importantes.
 
-**Loop clássico:**
-1. **Red**: escrever teste que falha
-2. **Green**: implementação mínima para passar
-3. **Refactor**: limpar mantendo testes verdes
+**Este workflow é opt-in.** Não aplique a menos que o usuário chame `/strict` ou peça rigor.
+
+**Procedure:**
+1. **Summarize the change** — escopo, risk areas, módulos afetados
+2. **Run the kit checklist:**
+   - `python .agent/scripts/checklist.py .`
+   - Se tiver URL: `python .agent/scripts/checklist.py . --url <URL>`
+3. **Interpret results** (ordem de prioridade):
+   1. Security
+   2. Lint / type checks
+   3. Schema validation (se aplicável)
+   4. Tests
+   5. UX / accessibility (se aplicável)
+4. **Remediate** — corrija Critical blockers primeiro (Security/Lint)
+5. **Exit criteria:**
+   - ✅ `checklist.py` retorna sucesso
+   - ✅ Forneça seção "Verification" com comandos exatos
+
+**Exemplos:**
+```text
+/strict
+/strict for authentication module
+/strict --url https://staging.example.com
+```
 
 ---
 
-## Fluxo sugerido “fim a fim” (do zero à produção)
+## 4) `/orchestrate` — Multi-Agent (Strict)
 
-1. `/brainstorm` (quando houver dúvida arquitetural)
-2. `/plan` (para gerar plano sólido)
-3. `/create` (para construir)
-4. `/preview` + `/status` (validar e acompanhar)
-5. `/enhance` (iterar features)
-6. `/test` (garantir qualidade)
-7. `/deploy` (entregar)
+**Objetivo:** coordenar especialistas para trabalhos multi-domínio ou de alta confiança.
 
-`/debug` entra em qualquer ponto quando algo quebrar. `/orchestrate` é o modo “projeto grande / mudança grande”. `ui-ux-pro-max` é o acelerador de UI/UX.
+**Quando usar (casos de uso):**
+- Mudanças multi-domínio (backend + DB + security + UI).
+- Refactors grandes / migrações.
+- Incident response / deep debugging.
+- Quando o usuário precisa de "high confidence".
+
+**Regras de orquestração:**
+1. **Mínimo de especialistas:** envolva **≥ 3** agentes de domínio (backend, frontend, database, security, devops, debugger, code-archaeologist)
+2. **Handoffs claros:** cada especialista deve retornar:
+   - findings
+   - recomendações concretas
+   - riscos/edge cases
+3. **Validação é obrigatória:** execute pelo menos:
+   - `python .agent/skills/vulnerability-scanner/scripts/security_scan.py .`
+   - `python .agent/skills/lint-and-validate/scripts/lint_runner.py .`
+   - `python .agent/skills/testing-patterns/scripts/test_runner.py .` (quando código mudar)
+
+**Workflow:**
+1. **Problem brief** — goal, constraints, acceptance criteria
+2. **Specialist passes** — security, architecture/backend, DB/schema, frontend/UX, devOps/deploy (conforme aplicável)
+3. **Synthesis** — merge recommendations em plano único, identifique conflitos
+4. **Verification plan** — liste comandos e defina exit criteria
+
+**Exemplos:**
+```text
+/orchestrate refactor authentication system
+/orchestrate migrate from Firebase to PostgreSQL
+/orchestrate security audit for payment module
+```
+
+---
+
+## Workflows Removidos (Migrados para Modo Normal)
+
+Os seguintes workflows foram **removidos** e suas funcionalidades migradas para o modo normal do agente:
+
+| Workflow | Alternativa |
+|---|---|
+| `/brainstorm` | Faça perguntas diretas no modo normal. O agente explorará opções naturalmente. |
+| `/plan` | Use `/orchestrate` com foco em planejamento, ou peça um plano no modo normal. |
+| `/create` | Use o modo normal para criar apps. Escalone para `/orchestrate` se for complexo. |
+| `/enhance` | Use o modo normal para evoluir apps. O agente detectará o estado atual automaticamente. |
+| `/debug` | Use o modo normal. Descreva o erro e o agente investigará sistematicamente. |
+| `/preview` | Use o modo normal. Peça para iniciar o servidor de preview. |
+| `/status` | Use o modo normal. Peça o status do projeto. |
+| `/ui-ux-pro-max` | Use o modo normal para trabalhos de UI/UX. O agente aplicará as regras de design. |
+
+---
+
+## Resumo da Filosofia
+
+> **Fast by default, strict when needed.**
+
+- **Modo normal:** Para 80% das tarefas (criar, debugar, planejar, evoluir). Rápido, direto, sem cerimônia.
+- **Workflows (`/test`, `/deploy`, `/strict`, `/orchestrate`):** Para validação, deploy e orquestração de alta confiança. Rigoroso, previsível, com checklists.
+
+Escolha o workflow baseado no **risco e complexidade**, não no hábito.

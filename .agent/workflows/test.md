@@ -1,144 +1,81 @@
 ---
-description: Test generation and test running command. Creates and executes tests for code.
+description: Test workflow: run, generate, or improve tests. Uses kit scripts to keep it language/framework agnostic.
 ---
 
-# /test - Test Generation and Execution
+# /test — Tests (Generate + Run + Triage)
 
 $ARGUMENTS
 
 ---
 
-## Purpose
+## Intent
 
-This command generates tests, runs existing tests, or checks test coverage.
-
----
-
-## Sub-commands
-
-```
-/test                - Run all tests
-/test [file/feature] - Generate tests for specific target
-/test coverage       - Show test coverage report
-/test watch          - Run tests in watch mode
-```
+- Run tests consistently (Python/Node)
+- Generate missing tests for changed code
+- Triage failures quickly
+- Optionally check coverage / E2E
 
 ---
 
-## Behavior
+## Decide the action (from $ARGUMENTS)
 
-### Generate Tests
+- `run` (default): run test suite
+- `coverage`: run with coverage
+- `generate`: create tests for the described change, then run
+- `e2e`: run Playwright (web apps)
 
-When asked to test a file or feature:
-
-1. **Analyze the code**
-   - Identify functions and methods
-   - Find edge cases
-   - Detect dependencies to mock
-
-2. **Generate test cases**
-   - Happy path tests
-   - Error cases
-   - Edge cases
-   - Integration tests (if needed)
-
-3. **Write tests**
-   - Use project's test framework (Jest, Vitest, etc.)
-   - Follow existing test patterns
-   - Mock external dependencies
+If ambiguous, assume **run**.
 
 ---
 
-## Output Format
+## Commands (kit standard)
 
-### For Test Generation
+### Run suite
+- `python .agent/skills/testing-patterns/scripts/test_runner.py .`
+
+### Coverage
+- `python .agent/skills/testing-patterns/scripts/test_runner.py . --coverage`
+
+### E2E (web)
+- `python .agent/skills/webapp-testing/scripts/playwright_runner.py .`
+
+> If the project uses a specific runner (pytest/jest/vitest), the script will detect and use it.
+
+---
+
+## Failure triage (required when red)
+
+1. Identify the **first failing test** and reproduce in isolation
+2. Categorize:
+   - flaky / timing
+   - data dependency
+   - breaking change (API/schema)
+   - environment/config
+3. Fix with minimal change
+4. Re-run the same command until green
+
+---
+
+## Output format
 
 ```markdown
-## 🧪 Tests: [Target]
+## 🧪 Test Report
 
-### Test Plan
-| Test Case | Type | Coverage |
-|-----------|------|----------|
-| Should create user | Unit | Happy path |
-| Should reject invalid email | Unit | Validation |
-| Should handle db error | Unit | Error case |
+### Action
+run | coverage | generate | e2e
 
-### Generated Tests
+### Commands
+- ...
 
-`tests/[file].test.ts`
+### Results
+- Passed: ...
+- Failed: ...
+- Notes: ...
 
-[Code block with tests]
+### Fixes applied (if any)
+- ...
 
----
-
-Run with: `npm test`
+### Verification
+- Re-ran: `...`
 ```
 
-### For Test Execution
-
-```
-🧪 Running tests...
-
-✅ auth.test.ts (5 passed)
-✅ user.test.ts (8 passed)
-❌ order.test.ts (2 passed, 1 failed)
-
-Failed:
-  ✗ should calculate total with discount
-    Expected: 90
-    Received: 100
-
-Total: 15 tests (14 passed, 1 failed)
-```
-
----
-
-## Examples
-
-```
-/test src/services/auth.service.ts
-/test user registration flow
-/test coverage
-/test fix failed tests
-```
-
----
-
-## Test Patterns
-
-### Unit Test Structure
-
-```typescript
-describe('AuthService', () => {
-  describe('login', () => {
-    it('should return token for valid credentials', async () => {
-      // Arrange
-      const credentials = { email: 'test@test.com', password: 'pass123' };
-      
-      // Act
-      const result = await authService.login(credentials);
-      
-      // Assert
-      expect(result.token).toBeDefined();
-    });
-
-    it('should throw for invalid password', async () => {
-      // Arrange
-      const credentials = { email: 'test@test.com', password: 'wrong' };
-      
-      // Act & Assert
-      await expect(authService.login(credentials)).rejects.toThrow('Invalid credentials');
-    });
-  });
-});
-```
-
----
-
-## Key Principles
-
-- **Test behavior not implementation**
-- **One assertion per test** (when practical)
-- **Descriptive test names**
-- **Arrange-Act-Assert pattern**
-- **Mock external dependencies**

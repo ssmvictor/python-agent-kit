@@ -1,176 +1,105 @@
 ---
-description: Deployment command for production releases. Pre-flight checks and deployment execution.
+description: Production deployment workflow. Uses kit validations before release and produces a deploy + rollback runbook.
 ---
 
-# /deploy - Production Deployment
+# /deploy — Production Deployment (Strict)
 
 $ARGUMENTS
 
 ---
 
-## Purpose
+## Intent
 
-This command handles production deployment with pre-flight checks, deployment execution, and verification.
+Ship a change safely: **pre-flight checks → deploy steps → post-deploy verification → rollback plan**.
 
----
-
-## Sub-commands
-
-```
-/deploy            - Interactive deployment wizard
-/deploy check      - Run pre-deployment checks only
-/deploy preview    - Deploy to preview/staging
-/deploy production - Deploy to production
-/deploy rollback   - Rollback to previous version
-```
+This workflow assumes **high stakes**. If details are missing, ask only what’s necessary to proceed.
 
 ---
 
-## Pre-Deployment Checklist
+## Required info (ask only if missing)
 
-Before any deployment:
+1) Target environment: **staging** or **production**
+2) Deployment surface: Vercel / Netlify / Fly.io / Docker / Other
+3) A **URL** to validate (staging/prod) OR a local preview URL (for perf/e2e)
+
+---
+
+## Pre-flight (must)
+
+1. **Summarize what’s going out**
+   - commit(s)/branch, key changes, risk areas, migrations, flags.
+
+2. **Run validations**
+   - Always:
+     - `python .agent/scripts/checklist.py .`
+   - If you have a URL:
+     - `python .agent/scripts/checklist.py . --url <URL>`
+
+3. **Stop conditions**
+   - If Security/Lint fails: **do not proceed**. Remediate and re-run.
+
+---
+
+## Deployment plan (produce exact commands)
+
+Generate a runbook for the chosen platform. Examples:
+
+- **Vercel**
+  - `vercel --prod` (or via Git integration)
+- **Netlify**
+  - `netlify deploy --prod`
+- **Fly.io**
+  - `fly deploy`
+- **Docker**
+  - `docker compose pull && docker compose up -d`
+
+Include:
+- env vars required
+- any migration steps
+- cache/asset invalidation (if relevant)
+
+---
+
+## Post-deploy verification
+
+1. Smoke tests (critical paths)
+2. Error monitoring checks (logs, Sentry, etc.)
+3. If URL provided, performance sanity:
+   - `python .agent/scripts/checklist.py . --url <URL>`
+
+---
+
+## Rollback plan (must)
+
+Provide a rollback path for the chosen platform, including:
+- how to revert migrations (or forward-fix strategy)
+- how to redeploy last known good version
+- how to confirm rollback success
+
+---
+
+## Output format
 
 ```markdown
-## 🚀 Pre-Deploy Checklist
+## 🚀 Deploy Runbook
 
-### Code Quality
-- [ ] No TypeScript errors (`npx tsc --noEmit`)
-- [ ] ESLint passing (`npx eslint .`)
-- [ ] All tests passing (`npm test`)
+### Target
+- Env: ...
+- Platform: ...
+- URL: ...
 
-### Security
-- [ ] No hardcoded secrets
-- [ ] Environment variables documented
-- [ ] Dependencies audited (`npm audit`)
+### Pre-flight
+- [ ] `python .agent/scripts/checklist.py .`
+- [ ] `python .agent/scripts/checklist.py . --url ...` (if available)
 
-### Performance
-- [ ] Bundle size acceptable
-- [ ] No console.log statements
-- [ ] Images optimized
+### Deploy steps
+1. ...
+2. ...
 
-### Documentation
-- [ ] README updated
-- [ ] CHANGELOG updated
-- [ ] API docs current
+### Verification
+- ...
 
-### Ready to deploy? (y/n)
+### Rollback
+- ...
 ```
 
----
-
-## Deployment Flow
-
-```
-┌─────────────────┐
-│  /deploy        │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Pre-flight     │
-│  checks         │
-└────────┬────────┘
-         │
-    Pass? ──No──► Fix issues
-         │
-        Yes
-         │
-         ▼
-┌─────────────────┐
-│  Build          │
-│  application    │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Deploy to      │
-│  platform       │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Health check   │
-│  & verify       │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  ✅ Complete    │
-└─────────────────┘
-```
-
----
-
-## Output Format
-
-### Successful Deploy
-
-```markdown
-## 🚀 Deployment Complete
-
-### Summary
-- **Version:** v1.2.3
-- **Environment:** production
-- **Duration:** 47 seconds
-- **Platform:** Vercel
-
-### URLs
-- 🌐 Production: https://app.example.com
-- 📊 Dashboard: https://vercel.com/project
-
-### What Changed
-- Added user profile feature
-- Fixed login bug
-- Updated dependencies
-
-### Health Check
-✅ API responding (200 OK)
-✅ Database connected
-✅ All services healthy
-```
-
-### Failed Deploy
-
-```markdown
-## ❌ Deployment Failed
-
-### Error
-Build failed at step: TypeScript compilation
-
-### Details
-```
-error TS2345: Argument of type 'string' is not assignable...
-```
-
-### Resolution
-1. Fix TypeScript error in `src/services/user.ts:45`
-2. Run `npm run build` locally to verify
-3. Try `/deploy` again
-
-### Rollback Available
-Previous version (v1.2.2) is still active.
-Run `/deploy rollback` if needed.
-```
-
----
-
-## Platform Support
-
-| Platform | Command | Notes |
-|----------|---------|-------|
-| Vercel | `vercel --prod` | Auto-detected for Next.js |
-| Railway | `railway up` | Needs Railway CLI |
-| Fly.io | `fly deploy` | Needs flyctl |
-| Docker | `docker compose up -d` | For self-hosted |
-
----
-
-## Examples
-
-```
-/deploy
-/deploy check
-/deploy preview
-/deploy production --skip-tests
-/deploy rollback
-```
