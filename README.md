@@ -18,6 +18,30 @@ python .agent/scripts/checklist.py .
 
 ---
 
+## Installation
+
+### Option 1: Local (per project)
+
+Copy the `.agent` folder to your project root:
+
+```bash
+your-project/
+├── .agent/      # ← paste here
+├── src/
+└── ...
+```
+
+### Option 2: Global (all projects)
+
+Copy the contents of `.agent` to your user's Antigravity directory:
+
+| OS | Path |
+|---|---|
+| **Windows** | `C:\Users\<USERNAME>\.gemini\antigravity\` |
+| **Linux/macOS** | `~/.gemini/antigravity/` |
+
+---
+
 ## Operating modes
 
 The kit supports two operating modes:
