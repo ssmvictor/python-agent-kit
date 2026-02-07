@@ -97,7 +97,7 @@ See `docs/USAGE.md`.
 
 - `python-patterns` - Modern Python patterns
 - `api-patterns` - REST, GraphQL, contracts
-- `database-connectors` - cx_Oracle, pyodbc
+- `database-connectors` - oracledb, pyodbc
 - `erp-integration-patterns` - Sync, idempotency
 - `enterprise-automation` - Windows automation
 - `office-integration` - Excel, Word, PDF
