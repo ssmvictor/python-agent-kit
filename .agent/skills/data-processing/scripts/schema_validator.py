@@ -12,13 +12,18 @@ Examples:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Adiciona path para encontrar _console.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step, make_table, header
+
 import argparse
 import json
-import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from pathlib import Path
 from typing import Any
 
 
@@ -273,7 +278,7 @@ def load_dataframe(path: Path, format: str) -> Any:
     try:
         import pandas as pd
     except ImportError:
-        print("ERROR: pandas is required. Install with: pip install pandas")
+        error("pandas is required. Install with: pip install pandas")
         sys.exit(1)
     
     if format == "csv":
@@ -287,37 +292,39 @@ def load_dataframe(path: Path, format: str) -> Any:
 
 
 def print_result(result: ValidationResult, json_output: bool = False) -> None:
-    """Print validation result."""
+    """Print validation result with Rich formatting."""
     if json_output:
         print(json.dumps(result.to_dict(), indent=2))
         return
     
-    print("\n" + "=" * 60)
-    print("📋 SCHEMA VALIDATION REPORT")
-    print("=" * 60)
-    print(f"Schema: {result.schema_name}")
-    print(f"File: {result.file_path}")
-    print(f"Rows: {result.total_rows:,}")
-    print(f"Validated: {result.validated_at.strftime('%Y-%m-%d %H:%M:%S')}")
-    print("-" * 60)
+    header("SCHEMA VALIDATION REPORT")
+    
+    console.print(f"[b]Schema:[/b] {result.schema_name}")
+    console.print(f"[b]File:[/b] {result.file_path}")
+    console.print(f"[b]Rows:[/b] {result.total_rows:,}")
+    console.print(f"[b]Validated:[/b] {result.validated_at.strftime('%Y-%m-%d %H:%M:%S')}")
+    console.print()
     
     if result.warnings:
-        print("\n⚠️ WARNINGS:")
-        for warning in result.warnings:
-            print(f"  - {warning}")
+        warning("Warnings:")
+        for warn in result.warnings:
+            console.print(f"  - {warn}")
+        console.print()
     
     if result.errors:
-        print("\n❌ ERRORS:")
-        for error in result.errors[:20]:  # Show first 20
-            print(f"  [{error.error_type}] {error.column}: {error.message}")
+        error("Errors:")
+        table = make_table("Column", "Error Type", "Message")
+        for err in result.errors[:20]:  # Show first 20
+            table.add_row(err.column, err.error_type, err.message)
+        console.print(table)
         if len(result.errors) > 20:
-            print(f"  ... and {len(result.errors) - 20} more errors")
+            console.print(f"... and {len(result.errors) - 20} more errors")
+        console.print()
     
-    print("-" * 60)
-    status = "✅ VALID" if result.is_valid else "❌ INVALID"
-    print(f"Status: {status}")
-    print(f"Errors: {len(result.errors)} | Warnings: {len(result.warnings)}")
-    print("=" * 60 + "\n")
+    if result.is_valid:
+        success(f"VALID - Errors: {len(result.errors)} | Warnings: {len(result.warnings)}")
+    else:
+        error(f"INVALID - Errors: {len(result.errors)} | Warnings: {len(result.warnings)}")
 
 
 def generate_sample_schema() -> None:
@@ -397,25 +404,25 @@ def main() -> int:
         parser.error("--schema is required")
     
     if not args.data.exists():
-        print(f"ERROR: Data file not found: {args.data}")
+        error(f"Data file not found: {args.data}")
         return 1
     
     if not args.schema.exists():
-        print(f"ERROR: Schema file not found: {args.schema}")
+        error(f"Schema file not found: {args.schema}")
         return 1
     
     # Load schema
     try:
         schema = TableSchema.from_json_file(args.schema)
     except Exception as e:
-        print(f"ERROR: Failed to load schema: {e}")
+        error(f"Failed to load schema: {e}")
         return 1
     
     # Load data
     try:
         df = load_dataframe(args.data, args.format)
     except Exception as e:
-        print(f"ERROR: Failed to load data: {e}")
+        error(f"Failed to load data: {e}")
         return 1
     
     # Validate

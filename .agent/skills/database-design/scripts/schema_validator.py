@@ -14,6 +14,10 @@ Checks:
 """
 
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
 import json
 import re
 from pathlib import Path
@@ -94,18 +98,18 @@ def validate_prisma_schema(file_path: Path) -> list:
 def main():
     project_path = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     
-    print(f"\n{'='*60}")
-    print(f"[SCHEMA VALIDATOR] Database Schema Validation")
-    print(f"{'='*60}")
-    print(f"Project: {project_path}")
-    print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("-"*60)
+    from _console import header
+    header("SCHEMA VALIDATOR - Database Schema Validation")
+    console.print(f"Project: {project_path}")
+    console.print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    console.print("-"*60)
     
     # Find schema files
     schemas = find_schema_files(project_path)
-    print(f"Found {len(schemas)} schema files")
+    step(f"Found {len(schemas)} schema files")
     
     if not schemas:
+        warning("No schema files found")
         output = {
             "script": "schema_validator",
             "project": str(project_path),
@@ -114,14 +118,14 @@ def main():
             "passed": True,
             "message": "No schema files found"
         }
-        print(json.dumps(output, indent=2))
+        console.print(json.dumps(output, indent=2))
         sys.exit(0)
     
     # Validate each schema
     all_issues = []
     
     for schema_type, file_path in schemas:
-        print(f"\nValidating: {file_path.name} ({schema_type})")
+        step(f"Validating: {file_path.name} ({schema_type})")
         
         if schema_type == 'prisma':
             issues = validate_prisma_schema(file_path)
@@ -136,19 +140,19 @@ def main():
             })
     
     # Summary
-    print("\n" + "="*60)
-    print("SCHEMA ISSUES")
-    print("="*60)
+    console.print("\n" + "="*60)
+    console.print("SCHEMA ISSUES")
+    console.print("="*60)
     
     if all_issues:
         for item in all_issues:
-            print(f"\n{item['file']} ({item['type']}):")
+            warning(f"{item['file']} ({item['type']}):")
             for issue in item["issues"][:5]:  # Limit per file
-                print(f"  - {issue}")
+                console.print(f"  - {issue}")
             if len(item["issues"]) > 5:
-                print(f"  ... and {len(item['issues']) - 5} more issues")
+                console.print(f"  ... and {len(item['issues']) - 5} more issues")
     else:
-        print("No schema issues found!")
+        success("No schema issues found!")
     
     total_issues = sum(len(item["issues"]) for item in all_issues)
     # Schema issues are warnings, not failures
@@ -163,7 +167,7 @@ def main():
         "issues": all_issues
     }
     
-    print("\n" + json.dumps(output, indent=2))
+    console.print("\n" + json.dumps(output, indent=2))
     
     sys.exit(0)
 

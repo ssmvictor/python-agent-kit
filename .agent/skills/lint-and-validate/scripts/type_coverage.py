@@ -4,6 +4,10 @@ Type Coverage Checker - Measures TypeScript/Python type coverage.
 Identifies untyped functions, any usage, and type safety issues.
 """
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
 import re
 import subprocess
 from pathlib import Path
@@ -129,9 +133,8 @@ def main():
     target = sys.argv[1] if len(sys.argv) > 1 else "."
     project_path = Path(target)
     
-    print("\n" + "=" * 60)
-    print("  TYPE COVERAGE CHECKER")
-    print("=" * 60 + "\n")
+    from _console import header
+    header("TYPE COVERAGE CHECKER")
     
     results = []
     
@@ -146,27 +149,31 @@ def main():
         results.append(py_result)
     
     if not results:
-        print("[!] No TypeScript or Python files found.")
+        warning("No TypeScript or Python files found.")
         sys.exit(0)
     
     # Print results
     critical_issues = 0
     for result in results:
-        print(f"\n[{result['type'].upper()}]")
-        print("-" * 40)
+        step(f"[{result['type'].upper()}]")
+        console.print("-" * 40)
         for item in result['passed']:
-            print(f"  {item}")
+            console.print(f"  {item}")
         for item in result['issues']:
-            print(f"  {item}")
             if item.startswith("[X]"):
+                error(item)
                 critical_issues += 1
+            elif item.startswith("[!]"):
+                warning(item)
+            else:
+                console.print(f"  {item}")
     
-    print("\n" + "=" * 60)
+    console.print("\n" + "=" * 60)
     if critical_issues == 0:
-        print("[OK] TYPE COVERAGE: ACCEPTABLE")
+        success("TYPE COVERAGE: ACCEPTABLE")
         sys.exit(0)
     else:
-        print(f"[X] TYPE COVERAGE: {critical_issues} critical issues")
+        error(f"TYPE COVERAGE: {critical_issues} critical issues")
         sys.exit(1)
 
 if __name__ == "__main__":

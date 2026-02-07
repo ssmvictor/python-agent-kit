@@ -9,6 +9,10 @@ Note: Requires playwright (pip install playwright && playwright install chromium
 Screenshots: Saved to system temp directory (auto-cleaned by OS)
 """
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
 import json
 import os
 import tempfile
@@ -102,12 +106,15 @@ def run_basic_test(url: str, take_screenshot: bool = False) -> dict:
             browser.close()
             
             result["status"] = "success" if result["health"]["loaded"] else "failed"
-            result["summary"] = "[OK] Page loaded successfully" if result["status"] == "success" else "[X] Page failed to load"
+            if result["status"] == "success":
+                result["summary"] = "Page loaded successfully"
+            else:
+                result["summary"] = "Page failed to load"
             
     except Exception as e:
         result["status"] = "error"
         result["error"] = str(e)
-        result["summary"] = f"[X] Error: {str(e)[:100]}"
+        result["summary"] = f"Error: {str(e)[:100]}"
     
     return result
 
@@ -151,8 +158,8 @@ def run_accessibility_check(url: str) -> dict:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(json.dumps({
-            "error": "Usage: python playwright_runner.py <url> [--screenshot] [--a11y]",
+        error("Usage: python playwright_runner.py <url> [--screenshot] [--a11y]")
+        console.print(json.dumps({
             "examples": [
                 "python playwright_runner.py https://example.com",
                 "python playwright_runner.py https://example.com --screenshot",
@@ -165,9 +172,18 @@ if __name__ == "__main__":
     take_screenshot = "--screenshot" in sys.argv
     check_a11y = "--a11y" in sys.argv
     
+    step(f"Testing: {url}")
     if check_a11y:
         result = run_accessibility_check(url)
     else:
         result = run_basic_test(url, take_screenshot)
     
-    print(json.dumps(result, indent=2))
+    # Print status
+    if result.get("status") == "success":
+        success(result.get("summary", "Test completed"))
+    elif result.get("status") == "error":
+        error(result.get("error", "Unknown error"))
+    else:
+        warning(result.get("summary", "Test completed with issues"))
+    
+    console.print(json.dumps(result, indent=2))

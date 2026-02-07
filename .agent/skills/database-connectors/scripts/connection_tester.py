@@ -12,10 +12,14 @@ Examples:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step, make_table, print_table
+
 import argparse
 import json
 import os
-import sys
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -315,31 +319,41 @@ def print_report(report: ConnectionTestReport, json_output: bool = False) -> Non
         print(json.dumps(report.to_dict(), indent=2))
         return
     
-    print("\n" + "=" * 60)
-    print("🔌 DATABASE CONNECTION TEST")
-    print("=" * 60)
-    print(f"Driver: {report.driver}")
-    print(f"Host: {report.host}")
-    print(f"Database: {report.database}")
-    print(f"Tested: {report.tested_at.strftime('%Y-%m-%d %H:%M:%S')}")
-    print("-" * 60)
+    from _console import header
+    header("DATABASE CONNECTION TEST")
     
-    status_icons = {
-        TestStatus.PASS: "✅",
-        TestStatus.FAIL: "❌",
-        TestStatus.SKIP: "⏭️",
-    }
+    console.print(f"Driver: {report.driver}")
+    console.print(f"Host: {report.host}")
+    console.print(f"Database: {report.database}")
+    console.print(f"Tested: {report.tested_at.strftime('%Y-%m-%d %H:%M:%S')}")
+    console.print("-" * 60)
+    
+    # Create Rich table
+    table = make_table("Status", "Duration", "Test", "Message")
     
     for test in report.tests:
-        icon = status_icons[test.status]
-        print(f"{icon} [{test.duration_ms:6.1f}ms] {test.name}: {test.message}")
+        if test.status == TestStatus.PASS:
+            status_text = "[green]PASS[/green]"
+        elif test.status == TestStatus.FAIL:
+            status_text = "[red]FAIL[/red]"
+        else:
+            status_text = "[yellow]SKIP[/yellow]"
+        
+        table.add_row(
+            status_text,
+            f"{test.duration_ms:.1f}ms",
+            test.name,
+            test.message
+        )
     
-    print("-" * 60)
+    print_table(table)
+    
+    console.print("-" * 60)
     summary = report.summary
-    status = "✅ ALL TESTS PASSED" if report.passed else "❌ SOME TESTS FAILED"
-    print(f"Summary: {summary['passed']} passed, {summary['failed']} failed")
-    print(f"Status: {status}")
-    print("=" * 60 + "\n")
+    if report.passed:
+        success(f"ALL TESTS PASSED ({summary['passed']} passed, {summary['failed']} failed)")
+    else:
+        error(f"SOME TESTS FAILED ({summary['passed']} passed, {summary['failed']} failed)")
 
 
 def main() -> int:

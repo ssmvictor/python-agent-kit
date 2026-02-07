@@ -90,10 +90,13 @@ Total: 80+ checks across all design principles
 """
 
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
 import os
 import re
 import json
-from pathlib import Path
 
 class UXAuditor:
     def __init__(self):
@@ -703,18 +706,19 @@ def main():
     if is_json:
         print(json.dumps(report))
     else:
-        # Use ASCII-safe output for Windows console compatibility
-        print(f"\n[UX AUDIT] {report['files_checked']} files checked")
-        print("-" * 50)
+        from _console import header
+        header(f"UX AUDIT - {report['files_checked']} files checked")
         if report['issues']:
-            print(f"[!] ISSUES ({len(report['issues'])}):")
-            for i in report['issues'][:10]: print(f"  - {i}")
+            error(f"ISSUES ({len(report['issues'])}):")
+            for i in report['issues'][:10]: console.print(f"  - {i}")
         if report['warnings']:
-            print(f"[*] WARNINGS ({len(report['warnings'])}):")
-            for w in report['warnings'][:15]: print(f"  - {w}")
-        print(f"[+] PASSED CHECKS: {report['passed_checks']}")
-        status = "PASS" if report['compliant'] else "FAIL"
-        print(f"STATUS: {status}")
+            warning(f"WARNINGS ({len(report['warnings'])}):")
+            for w in report['warnings'][:15]: console.print(f"  - {w}")
+        success(f"PASSED CHECKS: {report['passed_checks']}")
+        if report['compliant']:
+            success("STATUS: PASS")
+        else:
+            error("STATUS: FAIL")
 
     sys.exit(0 if report['compliant'] else 1)
 

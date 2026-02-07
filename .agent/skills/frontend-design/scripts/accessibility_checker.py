@@ -15,6 +15,10 @@ Checks:
 """
 
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
 import json
 import re
 from pathlib import Path
@@ -111,18 +115,18 @@ def check_accessibility(file_path: Path) -> list:
 def main():
     project_path = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     
-    print(f"\n{'='*60}")
-    print(f"[ACCESSIBILITY CHECKER] WCAG Compliance Audit")
-    print(f"{'='*60}")
-    print(f"Project: {project_path}")
-    print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("-"*60)
+    from _console import header
+    header("ACCESSIBILITY CHECKER - WCAG Compliance Audit")
+    console.print(f"Project: {project_path}")
+    console.print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    console.print("-"*60)
     
     # Find HTML files
     files = find_html_files(project_path)
-    print(f"Found {len(files)} HTML/JSX/TSX files")
+    step(f"Found {len(files)} HTML/JSX/TSX files")
     
     if not files:
+        warning("No HTML files found")
         output = {
             "script": "accessibility_checker",
             "project": str(project_path),
@@ -131,7 +135,7 @@ def main():
             "passed": True,
             "message": "No HTML files found"
         }
-        print(json.dumps(output, indent=2))
+        console.print(json.dumps(output, indent=2))
         sys.exit(0)
     
     # Check each file
@@ -146,20 +150,20 @@ def main():
             })
     
     # Summary
-    print("\n" + "="*60)
-    print("ACCESSIBILITY ISSUES")
-    print("="*60)
+    console.print("\n" + "="*60)
+    console.print("ACCESSIBILITY ISSUES")
+    console.print("="*60)
     
     if all_issues:
         for item in all_issues[:10]:
-            print(f"\n{item['file']}:")
+            warning(f"{item['file']}:")
             for issue in item["issues"]:
-                print(f"  - {issue}")
+                console.print(f"  - {issue}")
         
         if len(all_issues) > 10:
-            print(f"\n... and {len(all_issues) - 10} more files with issues")
+            console.print(f"\n... and {len(all_issues) - 10} more files with issues")
     else:
-        print("No accessibility issues found!")
+        success("No accessibility issues found!")
     
     total_issues = sum(len(item["issues"]) for item in all_issues)
     # Accessibility issues are important but not blocking
@@ -174,7 +178,12 @@ def main():
         "passed": passed
     }
     
-    print("\n" + json.dumps(output, indent=2))
+    console.print("\n" + json.dumps(output, indent=2))
+    
+    if passed:
+        success(f"Accessibility check passed ({total_issues} issues found)")
+    else:
+        error(f"Accessibility issues found: {total_issues}")
     
     sys.exit(0 if passed else 1)
 

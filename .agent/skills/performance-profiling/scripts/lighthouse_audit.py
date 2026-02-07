@@ -7,9 +7,13 @@ Usage: python lighthouse_audit.py https://example.com
 Output: JSON with performance scores
 Note: Requires lighthouse CLI (npm install -g lighthouse)
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
 import subprocess
 import json
-import sys
 import os
 import tempfile
 
@@ -61,16 +65,31 @@ def get_summary(categories: dict) -> str:
     """Generate summary based on scores."""
     perf = categories.get("performance", {}).get("score", 0) * 100
     if perf >= 90:
-        return "[OK] Excellent performance"
+        return "Excellent performance"
     elif perf >= 50:
-        return "[!] Needs improvement"
+        return "Needs improvement"
     else:
-        return "[X] Poor performance"
+        return "Poor performance"
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(json.dumps({"error": "Usage: python lighthouse_audit.py <url>"}))
+        error("Usage: python lighthouse_audit.py <url>")
         sys.exit(1)
     
-    result = run_lighthouse(sys.argv[1])
-    print(json.dumps(result, indent=2))
+    url = sys.argv[1]
+    step(f"Running Lighthouse audit for {url}...")
+    result = run_lighthouse(url)
+    
+    if "error" in result:
+        error(result["error"])
+    else:
+        scores = result.get("scores", {})
+        perf = scores.get("performance", 0)
+        if perf >= 90:
+            success(f"Performance: {perf}/100 - {result.get('summary', '')}")
+        elif perf >= 50:
+            warning(f"Performance: {perf}/100 - {result.get('summary', '')}")
+        else:
+            error(f"Performance: {perf}/100 - {result.get('summary', '')}")
+    
+    console.print(json.dumps(result, indent=2))

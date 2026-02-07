@@ -11,8 +11,12 @@ Supports:
     - Python: pytest, unittest
 """
 
-import subprocess
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
+import subprocess
 import json
 from pathlib import Path
 from datetime import datetime
@@ -141,37 +145,36 @@ def main():
     project_path = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     with_coverage = "--coverage" in sys.argv
     
-    print(f"\n{'='*60}")
-    print(f"[TEST RUNNER] Unified Test Execution")
-    print(f"{'='*60}")
-    print(f"Project: {project_path}")
-    print(f"Coverage: {'enabled' if with_coverage else 'disabled'}")
-    print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    from _console import header
+    header("TEST RUNNER - Unified Test Execution")
+    console.print(f"Project: {project_path}")
+    console.print(f"Coverage: {'enabled' if with_coverage else 'disabled'}")
+    console.print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Detect test framework
     test_info = detect_test_framework(project_path)
-    print(f"Type: {test_info['type']}")
-    print(f"Framework: {test_info['framework']}")
-    print("-"*60)
+    console.print(f"Type: {test_info['type']}")
+    step(f"Framework: {test_info['framework']}")
+    console.print("-"*60)
     
     if not test_info["cmd"]:
-        print("No test framework found for this project.")
+        warning("No test framework found for this project.")
         output = {
             "script": "test_runner",
             "project": str(project_path),
-            "type": test_info["type"],
+            "type": test_info['type'],
             "framework": None,
             "passed": True,
             "message": "No tests configured"
         }
-        print(json.dumps(output, indent=2))
+        console.print(json.dumps(output, indent=2))
         sys.exit(0)
     
     # Choose command
     cmd = test_info["coverage_cmd"] if with_coverage and test_info["coverage_cmd"] else test_info["cmd"]
     
-    print(f"Running: {' '.join(cmd)}")
-    print("-"*60)
+    step(f"Running: {' '.join(cmd)}")
+    console.print("-"*60)
     
     # Run tests
     result = run_tests(cmd, project_path)
@@ -180,37 +183,37 @@ def main():
     if result["output"]:
         lines = result["output"].split("\n")
         for line in lines[:30]:
-            print(line)
+            console.print(line)
         if len(lines) > 30:
-            print(f"... ({len(lines) - 30} more lines)")
+            console.print(f"... ({len(lines) - 30} more lines)")
     
     # Summary
-    print("\n" + "="*60)
-    print("SUMMARY")
-    print("="*60)
+    console.print("\n" + "="*60)
+    console.print("SUMMARY")
+    console.print("="*60)
     
     if result["passed"]:
-        print("[PASS] All tests passed")
+        success("All tests passed")
     else:
-        print("[FAIL] Some tests failed")
+        error("Some tests failed")
         if result["error"]:
-            print(f"Error: {result['error'][:200]}")
+            console.print(f"Error: {result['error'][:200]}")
     
     if result["tests_run"] > 0:
-        print(f"Tests: {result['tests_run']} total, {result['tests_passed']} passed, {result['tests_failed']} failed")
+        console.print(f"Tests: {result['tests_run']} total, {result['tests_passed']} passed, {result['tests_failed']} failed")
     
     output = {
         "script": "test_runner",
         "project": str(project_path),
-        "type": test_info["type"],
-        "framework": test_info["framework"],
-        "tests_run": result["tests_run"],
-        "tests_passed": result["tests_passed"],
-        "tests_failed": result["tests_failed"],
-        "passed": result["passed"]
+        "type": test_info['type'],
+        "framework": test_info['framework'],
+        "tests_run": result['tests_run'],
+        "tests_passed": result['tests_passed'],
+        "tests_failed": result['tests_failed'],
+        "passed": result['passed']
     }
     
-    print("\n" + json.dumps(output, indent=2))
+    console.print("\n" + json.dumps(output, indent=2))
     
     sys.exit(0 if result["passed"] else 1)
 

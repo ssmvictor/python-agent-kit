@@ -4,6 +4,10 @@ API Validator - Checks API endpoints for best practices.
 Validates OpenAPI specs, response formats, and common issues.
 """
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
 import json
 import re
 from pathlib import Path
@@ -163,15 +167,14 @@ def main():
     target = sys.argv[1] if len(sys.argv) > 1 else "."
     project_path = Path(target)
     
-    print("\n" + "=" * 60)
-    print("  API VALIDATOR - Endpoint Best Practices Check")
-    print("=" * 60 + "\n")
+    from _console import header
+    header("API VALIDATOR - Endpoint Best Practices Check")
     
     api_files = find_api_files(project_path)
     
     if not api_files:
-        print("[!] No API files found.")
-        print("   Looking for: routes/, controllers/, api/, openapi.json/yaml")
+        warning("No API files found.")
+        console.print("   Looking for: routes/, controllers/, api/, openapi.json/yaml")
         sys.exit(0)
     
     results = []
@@ -187,24 +190,26 @@ def main():
     total_passed = 0
     
     for result in results:
-        print(f"\n[FILE] {result['file']} [{result['type']}]")
+        step(f"Checking: {result['file']} [{result['type']}]")
         for item in result['passed']:
-            print(f"   {item}")
+            console.print(f"   {item}")
             total_passed += 1
         for item in result['issues']:
-            print(f"   {item}")
             if item.startswith("[X]"):
+                error(item)
                 total_issues += 1
+            elif item.startswith("[!]"):
+                warning(item)
+            else:
+                console.print(f"   {item}")
     
-    print("\n" + "=" * 60)
-    print(f"[RESULTS] {total_passed} passed, {total_issues} critical issues")
-    print("=" * 60)
+    console.print("\n" + "=" * 60)
     
     if total_issues == 0:
-        print("[OK] API validation passed")
+        success(f"API validation passed - {total_passed} checks passed")
         sys.exit(0)
     else:
-        print("[X] Fix critical issues before deployment")
+        error(f"Fix {total_issues} critical issues before deployment ({total_passed} passed)")
         sys.exit(1)
 
 if __name__ == "__main__":

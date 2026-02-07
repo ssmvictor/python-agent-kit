@@ -12,14 +12,20 @@ Examples:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Adiciona path para encontrar _console.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step, make_table, header
+
 import argparse
 import json
-import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from pathlib import Path
 from typing import Callable, Protocol
+
 
 # Type aliases
 CheckFunction = Callable[["DataFrameProtocol"], bool]
@@ -220,7 +226,7 @@ def load_dataframe(path: Path, format: str) -> "DataFrameProtocol":
     try:
         import pandas as pd
     except ImportError:
-        print("ERROR: pandas is required. Install with: pip install pandas")
+        error("pandas is required. Install with: pip install pandas")
         sys.exit(1)
     
     if format == "csv":
@@ -234,29 +240,42 @@ def load_dataframe(path: Path, format: str) -> "DataFrameProtocol":
 
 
 def print_report(report: QualityReport, json_output: bool = False) -> None:
-    """Print quality report."""
+    """Print quality report with Rich formatting."""
     if json_output:
         print(json.dumps(report.to_dict(), indent=2))
         return
     
-    print("\n" + "=" * 60)
-    print("📊 DATA QUALITY REPORT")
-    print("=" * 60)
-    print(f"File: {report.file_path}")
-    print(f"Checked: {report.checked_at.strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Rows: {report.total_rows:,} | Columns: {report.total_columns}")
-    print("-" * 60)
+    header("DATA QUALITY REPORT")
     
+    console.print(f"[b]File:[/b] {report.file_path}")
+    console.print(f"[b]Checked:[/b] {report.checked_at.strftime('%Y-%m-%d %H:%M:%S')}")
+    console.print(f"[b]Rows:[/b] {report.total_rows:,} | [b]Columns:[/b] {report.total_columns}")
+    console.print()
+    
+    # Checks table
+    table = make_table("Status", "Severity", "Check", "Message")
     for check in report.checks:
-        icon = "✅" if check.passed else ("⚠️" if check.severity == Severity.WARNING else "❌")
-        print(f"{icon} [{check.severity.value.upper():8}] {check.name}: {check.message}")
+        if check.passed:
+            status = "[green]✓[/green]"
+            style = "green"
+        elif check.severity == Severity.WARNING:
+            status = "[yellow]⚠[/yellow]"
+            style = "yellow"
+        else:
+            status = "[red]✗[/red]"
+            style = "red"
+        
+        table.add_row(status, f"[{style}]{check.severity.value.upper()}[/{style}]", check.name, check.message)
     
-    print("-" * 60)
+    console.print(table)
+    console.print()
+    
+    # Summary
     summary = report.summary
-    status = "✅ PASSED" if report.passed else "❌ FAILED"
-    print(f"Summary: {summary['passed']} passed, {summary['warnings']} warnings, {summary['errors']} errors")
-    print(f"Status: {status}")
-    print("=" * 60 + "\n")
+    if report.passed:
+        success(f"PASSED: {summary['passed']} passed, {summary['warnings']} warnings, {summary['errors']} errors")
+    else:
+        error(f"FAILED: {summary['passed']} passed, {summary['warnings']} warnings, {summary['errors']} errors")
 
 
 def main() -> int:
@@ -295,14 +314,14 @@ def main() -> int:
     
     # Validate file exists
     if not args.path.exists():
-        print(f"ERROR: File not found: {args.path}")
+        error(f"File not found: {args.path}")
         return 1
     
     # Load data
     try:
         df = load_dataframe(args.path, args.format)
     except Exception as e:
-        print(f"ERROR: Failed to load file: {e}")
+        error(f"Failed to load file: {e}")
         return 1
     
     # Create checker with optional column-specific checks

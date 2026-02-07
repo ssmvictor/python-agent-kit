@@ -11,8 +11,12 @@ Supports:
     - Python: ruff check, mypy
 """
 
-import subprocess
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
+import subprocess
 import json
 from pathlib import Path
 from datetime import datetime
@@ -104,29 +108,28 @@ def run_linter(linter: dict, cwd: Path) -> dict:
 def main():
     project_path = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     
-    print(f"\n{'='*60}")
-    print(f"[LINT RUNNER] Unified Linting")
-    print(f"{'='*60}")
-    print(f"Project: {project_path}")
-    print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    from _console import header
+    header("LINT RUNNER - Unified Linting")
+    console.print(f"Project: {project_path}")
+    console.print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Detect project type
     project_info = detect_project_type(project_path)
-    print(f"Type: {project_info['type']}")
-    print(f"Linters: {len(project_info['linters'])}")
-    print("-"*60)
+    console.print(f"Type: {project_info['type']}")
+    step(f"Linters: {len(project_info['linters'])}")
+    console.print("-"*60)
     
     if not project_info["linters"]:
-        print("No linters found for this project type.")
+        warning("No linters found for this project type.")
         output = {
             "script": "lint_runner",
             "project": str(project_path),
-            "type": project_info["type"],
+            "type": project_info['type'],
             "checks": [],
             "passed": True,
             "message": "No linters configured"
         }
-        print(json.dumps(output, indent=2))
+        console.print(json.dumps(output, indent=2))
         sys.exit(0)
     
     # Run each linter
@@ -134,36 +137,38 @@ def main():
     all_passed = True
     
     for linter in project_info["linters"]:
-        print(f"\nRunning: {linter['name']}...")
+        step(f"Running: {linter['name']}...")
         result = run_linter(linter, project_path)
         results.append(result)
         
         if result["passed"]:
-            print(f"  [PASS] {linter['name']}")
+            success(f"  {linter['name']}")
         else:
-            print(f"  [FAIL] {linter['name']}")
+            error(f"  {linter['name']}")
             if result["error"]:
-                print(f"  Error: {result['error'][:200]}")
+                console.print(f"  Error: {result['error'][:200]}")
             all_passed = False
     
     # Summary
-    print("\n" + "="*60)
-    print("SUMMARY")
-    print("="*60)
+    console.print("\n" + "="*60)
+    console.print("SUMMARY")
+    console.print("="*60)
     
     for r in results:
-        icon = "[PASS]" if r["passed"] else "[FAIL]"
-        print(f"{icon} {r['name']}")
+        if r["passed"]:
+            success(f"{r['name']}")
+        else:
+            error(f"{r['name']}")
     
     output = {
         "script": "lint_runner",
         "project": str(project_path),
-        "type": project_info["type"],
+        "type": project_info['type'],
         "checks": results,
         "passed": all_passed
     }
     
-    print("\n" + json.dumps(output, indent=2))
+    console.print("\n" + json.dumps(output, indent=2))
     
     sys.exit(0 if all_passed else 1)
 

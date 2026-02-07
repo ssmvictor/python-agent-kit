@@ -8,10 +8,16 @@ Uso:
     python commit_validator.py --range HEAD~5    # Valida ultimos 5 commits
 """
 
+import sys
+from pathlib import Path
+
+# Adiciona path para encontrar _console.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step, make_table, header
+
 import argparse
 import re
 import subprocess
-import sys
 from dataclasses import dataclass
 from typing import Optional
 
@@ -135,7 +141,7 @@ def validate_commit(message: str, diff: str = "") -> ValidationResult:
     if diff:
         secrets = check_secrets(diff)
         for desc, _ in secrets:
-            issues.append(f"🔴 SECURITY: {desc}")
+            issues.append(f"SECURITY: {desc}")
     
     return ValidationResult(
         valid=len(issues) == 0,
@@ -175,34 +181,39 @@ def suggest_fix(message: str) -> str:
     return suggestion
 
 
-def format_result(result: ValidationResult) -> str:
-    """Formata resultado para exibicao."""
-    status = "✅ Aprovado" if result.valid else "❌ Reprovado"
+def format_result(result: ValidationResult) -> None:
+    """Formata resultado para exibicao com Rich."""
+    header("ANALISE DO COMMIT")
     
-    output = [
-        "## 🔍 Analise do Commit",
-        "",
-        f"**Mensagem:** `{result.message}`",
-        f"**Status:** {status}",
-        "",
-    ]
+    # Status
+    if result.valid:
+        success("Status: Aprovado")
+    else:
+        error("Status: Reprovado")
+    
+    console.print(f"\n[b]Mensagem:[/b] `{result.message}`")
     
     if result.commit_type:
-        output.append(f"**Tipo:** `{result.commit_type}` - {COMMIT_TYPES.get(result.commit_type, 'Desconhecido')}")
+        type_desc = COMMIT_TYPES.get(result.commit_type, 'Desconhecido')
+        console.print(f"[b]Tipo:[/b] `{result.commit_type}` - {type_desc}")
         if result.scope:
-            output.append(f"**Escopo:** `{result.scope}`")
+            console.print(f"[b]Escopo:[/b] `{result.scope}`")
         if result.breaking:
-            output.append("**Breaking Change:** ⚠️ Sim")
+            warning("Breaking Change: Sim")
     
+    # Issues table
     if result.issues:
-        output.extend(["", "### Problemas"])
+        console.print("\n[b]Problemas encontrados:[/b]")
+        table = make_table("Tipo", "Problema")
         for issue in result.issues:
-            output.append(f"- {issue}")
+            if "SECURITY" in issue:
+                table.add_row("[red]SECURITY[/red]", issue.replace("SECURITY: ", ""))
+            else:
+                table.add_row("[yellow]WARN[/yellow]", issue)
+        console.print(table)
     
     if result.suggestion:
-        output.extend(["", f"**Sugestao:** `{result.suggestion}`"])
-    
-    return "\n".join(output)
+        console.print(f"\n[b]Sugestao:[/b] `{result.suggestion}`")
 
 
 def main():
@@ -220,14 +231,14 @@ def main():
             diff = get_commit_diff()
             result = validate_commit(message, diff)
         
-        print(format_result(result))
+        format_result(result)
         sys.exit(0 if result.valid else 1)
         
     except subprocess.CalledProcessError as e:
-        print(f"Erro ao executar git: {e}")
+        error(f"Erro ao executar git: {e}")
         sys.exit(2)
     except Exception as e:
-        print(f"Erro: {e}")
+        error(f"Erro: {e}")
         sys.exit(2)
 
 

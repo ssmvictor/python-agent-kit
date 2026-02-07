@@ -12,12 +12,15 @@ Examples:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step
+
 import argparse
 import json
-import sys
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
 from typing import Any, Dict, List
 
 
@@ -144,10 +147,9 @@ def generate_excel(
 def print_result(result: GenerationResult) -> None:
     """Print generation result."""
     if result.success:
-        print(f"✅ {result.message}")
-        print(f"   Records processed: {result.records_processed}")
+        success(f"{result.message} ({result.records_processed} records)")
     else:
-        print(f"❌ {result.message}")
+        error(result.message)
 
 
 def main() -> int:

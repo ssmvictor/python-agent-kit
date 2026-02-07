@@ -8,10 +8,16 @@ Uso:
     python pr_analyzer.py --base main             # Compara com branch base
 """
 
+import sys
+from pathlib import Path
+
+# Adiciona path para encontrar _console.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step, make_table, header, RICH_AVAILABLE
+
 import argparse
 import re
 import subprocess
-import sys
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -196,69 +202,62 @@ def analyze_pr(title: str, base: str = "main") -> PRAnalysis:
     )
 
 
-def format_analysis(pr: PRAnalysis) -> str:
-    """Formata analise para exibicao."""
+def format_analysis(pr: PRAnalysis) -> None:
+    """Formata analise para exibicao com Rich."""
+    header("ANALISE DA PR")
+    
     # Status geral
     all_issues = pr.title_issues + pr.commit_issues
     if not all_issues:
-        status = "✅ Aprovado"
+        success("Status: Aprovado")
     elif any("SECURITY" in i for i in all_issues):
-        status = "🔴 Bloqueado"
+        error("Status: Bloqueado")
     else:
-        status = "⚠️ Ajustes Necessarios"
+        warning("Status: Ajustes Necessarios")
     
-    output = [
-        "## 🔍 Analise da PR",
-        "",
-        f"**Branch:** `{pr.branch}`",
-        f"**Titulo:** `{pr.title}`",
-        f"**Commits:** {len(pr.commits)}",
-        f"**Status:** {status}",
-        "",
-    ]
+    # Info basica
+    console.print(f"\n[b]Branch:[/b] `{pr.branch}`")
+    console.print(f"[b]Titulo:[/b] `{pr.title}`")
+    console.print(f"[b]Commits:[/b] {len(pr.commits)}")
     
-    # Titulo
-    output.append("### Titulo")
+    # Titulo section
+    console.print("\n[b]Titulo[/b]")
     if pr.title_valid:
-        output.append("- [x] Formato Conventional Commits")
+        success("Formato Conventional Commits")
     else:
-        output.append("- [ ] Formato Conventional Commits")
         for issue in pr.title_issues:
-            output.append(f"  - {issue}")
+            warning(issue)
     
     if pr.suggested_title:
-        output.append(f"- **Sugestao:** `{pr.suggested_title}`")
+        console.print(f"[b]Sugestao:[/b] `{pr.suggested_title}`")
     
-    # Commits
-    output.extend(["", "### Commits"])
+    # Commits table
+    console.print("\n[b]Commits[/b]")
     if not pr.commit_issues:
-        output.append("- [x] Todos os commits validos")
+        success("Todos os commits validos")
     else:
+        table = make_table("Problema")
         for issue in pr.commit_issues:
-            output.append(f"- [ ] {issue}")
+            table.add_row(issue)
+        console.print(table)
     
     if pr.squash_recommended:
-        output.append("- 💡 **Recomendacao:** Squash antes do merge")
+        warning("Recomendacao: Squash antes do merge")
     
     # Breaking Changes
     if pr.has_breaking_change:
-        output.extend([
-            "",
-            "### ⚠️ Breaking Changes",
-            "- [ ] Label `breaking-change` aplicada",
-            "- [ ] Documentacao atualizada",
-            "- [ ] Migration guide",
-        ])
+        console.print("\n[bold red]Breaking Changes[/bold red]")
+        console.print("  - Label `breaking-change` aplicada")
+        console.print("  - Documentacao atualizada")
+        console.print("  - Migration guide")
     
     # Linked Issues
-    output.extend(["", "### Linked Issues"])
+    console.print("\n[b]Linked Issues[/b]")
     if pr.linked_issues:
         for issue in pr.linked_issues:
-            output.append(f"- #{issue}")
+            console.print(f"  - #{issue}")
     else:
-        output.append("- ⚠️ Nenhuma issue linkada. Adicione `Closes #123`")
-    
-    return "\n".join(output)
+        warning("Nenhuma issue linkada. Adicione `Closes #123`")
 
 
 def main():
@@ -270,17 +269,17 @@ def main():
     try:
         title = args.title or get_current_branch()
         pr = analyze_pr(title, args.base)
-        print(format_analysis(pr))
+        format_analysis(pr)
         
         # Exit code baseado na validacao
         has_issues = pr.title_issues or pr.commit_issues
         sys.exit(1 if has_issues else 0)
         
     except subprocess.CalledProcessError as e:
-        print(f"Erro ao executar git: {e}")
+        error(f"Erro ao executar git: {e}")
         sys.exit(2)
     except Exception as e:
-        print(f"Erro: {e}")
+        error(f"Erro: {e}")
         sys.exit(2)
 
 

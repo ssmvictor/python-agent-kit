@@ -13,9 +13,13 @@ Examples:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from _console import console, success, error, warning, step, make_table, print_table
+
 import argparse
 import json
-import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -358,34 +362,41 @@ def print_report(report: ValidationReport, json_output: bool = False) -> None:
         print(json.dumps(report.to_dict(), indent=2))
         return
     
-    print("\n" + "=" * 60)
-    print("🔧 AUTOMATION ENVIRONMENT VALIDATION")
-    print("=" * 60)
-    print(f"Platform: {report.system_info['platform']} {report.system_info['platform_version']}")
-    print(f"Python: {report.system_info['python_version']}")
-    print(f"Checked: {report.checked_at.strftime('%Y-%m-%d %H:%M:%S')}")
-    print("-" * 60)
+    from _console import header
+    header("AUTOMATION ENVIRONMENT VALIDATION")
     
-    status_icons = {
-        CheckStatus.PASS: "✅",
-        CheckStatus.FAIL: "❌",
-        CheckStatus.WARN: "⚠️",
-        CheckStatus.SKIP: "⏭️",
-    }
+    console.print(f"Platform: {report.system_info['platform']} {report.system_info['platform_version']}")
+    console.print(f"Python: {report.system_info['python_version']}")
+    console.print(f"Checked: {report.checked_at.strftime('%Y-%m-%d %H:%M:%S')}")
+    console.print("-" * 60)
+    
+    # Create Rich table
+    table = make_table("Status", "Check", "Message")
     
     for check in report.checks:
-        icon = status_icons[check.status]
-        print(f"{icon} [{check.status.value.upper():4}] {check.name}: {check.message}")
+        if check.status == CheckStatus.PASS:
+            status_text = "[green]PASS[/green]"
+        elif check.status == CheckStatus.FAIL:
+            status_text = "[red]FAIL[/red]"
+        elif check.status == CheckStatus.WARN:
+            status_text = "[yellow]WARN[/yellow]"
+        else:
+            status_text = "[dim]SKIP[/dim]"
+        
+        message = check.message
         if check.details:
-            print(f"       └─ {check.details}")
+            message += f"\n      -> {check.details}"
+        
+        table.add_row(status_text, check.name, message)
     
-    print("-" * 60)
+    print_table(table)
+    
+    console.print("-" * 60)
     summary = report.summary
-    status = "✅ READY" if report.passed else "❌ NOT READY"
-    print(f"Summary: {summary['passed']} passed, {summary['failed']} failed, "
-          f"{summary['warnings']} warnings, {summary['skipped']} skipped")
-    print(f"Status: {status}")
-    print("=" * 60 + "\n")
+    if report.passed:
+        success(f"READY - {summary['passed']} passed, {summary['failed']} failed, {summary['warnings']} warnings, {summary['skipped']} skipped")
+    else:
+        error(f"NOT READY - {summary['passed']} passed, {summary['failed']} failed, {summary['warnings']} warnings, {summary['skipped']} skipped")
 
 
 def main() -> int:
