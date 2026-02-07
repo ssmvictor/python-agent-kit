@@ -40,6 +40,21 @@ Copy the contents of `.agent` to your user's Antigravity directory:
 | **Windows** | `C:\Users\<USERNAME>\.gemini\antigravity\` |
 | **Linux/macOS** | `~/.gemini/antigravity/` |
 
+### Dependencies (optional, recommended)
+
+The kit works without additional dependencies, but provides enhanced terminal output when Rich is installed:
+
+```bash
+pip install -r .agent/scripts/requirements.txt
+```
+
+**Rich** adds:
+- Colored tables and panels
+- Progress spinners
+- Better formatting for validation reports
+
+The kit gracefully degrades to plain text output if Rich is not installed.
+
 ---
 
 ## Operating modes
