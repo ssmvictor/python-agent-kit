@@ -6,14 +6,21 @@ Validates `.agent` kit consistency:
 - Skills referenced by agents exist
 - Agents referenced by orchestrator/rules exist
 - Frontmatter includes required fields
+
+Usage:
+    python .agent/scripts/kit_integrity_checker.py [path] [--format rich|markdown]
 """
 
 import os
 import re
 import sys
+import argparse
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional
+
+# Import console utilities
+from _console import console, success, error, warning, header, make_table
 
 
 @dataclass
@@ -157,7 +164,56 @@ class KitIntegrityChecker:
         
         return self.result
     
-    def generate_report(self) -> str:
+    def generate_rich_report(self) -> None:
+        """Generate a Rich formatted report."""
+        header("KIT INTEGRITY REPORT")
+        
+        if not self.result.has_errors and not self.result.warnings:
+            success("No problems found")
+            console.print(f"\nAgents checked: {len(self._existing_agents)}")
+            console.print(f"Skills checked: {len(self._existing_skills)}")
+            return
+        
+        # Missing Skills table
+        if self.result.missing_skills:
+            error("Missing Skills")
+            table = make_table("File", "Referenced Skill")
+            for file, skill in self.result.missing_skills:
+                table.add_row(file, skill)
+            console.print(table)
+            console.print()
+        
+        # Missing Agents table
+        if self.result.missing_agents:
+            error("Missing Agents")
+            table = make_table("File", "Referenced Agent")
+            for file, agent in self.result.missing_agents:
+                table.add_row(file, agent)
+            console.print(table)
+            console.print()
+        
+        # Invalid Frontmatter table
+        if self.result.invalid_frontmatter:
+            error("Invalid Frontmatter")
+            table = make_table("File", "Problem")
+            for file, problem in self.result.invalid_frontmatter:
+                table.add_row(file, problem)
+            console.print(table)
+            console.print()
+        
+        # Warnings
+        if self.result.warnings:
+            warning("Warnings")
+            for warn in self.result.warnings:
+                console.print(f"  - {warn}")
+            console.print()
+        
+        # Summary
+        console.print("-" * 40)
+        error(f"Total errors: {self.result.error_count}")
+        warning(f"Total warnings: {len(self.result.warnings)}")
+    
+    def generate_markdown_report(self) -> str:
         """Generate a markdown report."""
         lines = ["# Kit Integrity Report", ""]
         
@@ -217,20 +273,33 @@ class KitIntegrityChecker:
 
 def main():
     """Main entry point."""
+    parser = argparse.ArgumentParser(
+        description="Validate .agent kit integrity",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("path", nargs="?", default=None, help="Path to .agent directory")
+    parser.add_argument("--format", choices=["rich", "markdown"], default="rich",
+                        help="Output format (default: rich)")
+    
+    args = parser.parse_args()
+    
     # Determinar diretório .agent
-    if len(sys.argv) > 1:
-        agent_dir = Path(sys.argv[1])
+    if args.path:
+        agent_dir = Path(args.path)
     else:
         agent_dir = Path(__file__).parent.parent
     
     if not agent_dir.exists():
-        print(f"ERROR: directory not found: {agent_dir}")
+        error(f"Directory not found: {agent_dir}")
         sys.exit(1)
     
     checker = KitIntegrityChecker(agent_dir)
     result = checker.check()
     
-    print(checker.generate_report())
+    if args.format == "markdown":
+        print(checker.generate_markdown_report())
+    else:
+        checker.generate_rich_report()
     
     sys.exit(1 if result.has_errors else 0)
 

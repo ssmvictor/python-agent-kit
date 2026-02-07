@@ -14,6 +14,9 @@ from dataclasses import dataclass
 import re
 import sys
 
+# Import console utilities
+from _console import console, success, error, warning, header, make_table
+
 
 @dataclass
 class SkillInfo:
@@ -60,6 +63,17 @@ def analyze_skill(skill_dir: Path) -> SkillInfo | None:
     )
 
 
+def get_tier_style(tier: str) -> str:
+    """Get Rich style for tier."""
+    tier_styles = {
+        'pro': 'green',
+        'standard': 'blue',
+        'lite': 'yellow',
+        '[MISSING]': 'red'
+    }
+    return tier_styles.get(tier, 'white')
+
+
 def main() -> int:
     """Main entry point."""
     # Find skills directory
@@ -67,7 +81,7 @@ def main() -> int:
     skills_dir = script_dir.parent / 'skills'
     
     if not skills_dir.exists():
-        print(f"ERROR: Skills directory not found: {skills_dir}")
+        error(f"Skills directory not found: {skills_dir}")
         return 1
     
     # Analyze all skills
@@ -85,39 +99,46 @@ def main() -> int:
         tiers[tier_key].append(skill)
     
     # Print report
-    print("\n" + "=" * 60)
-    print("SKILL TIER AUDIT REPORT")
-    print("=" * 60)
+    header("SKILL TIER AUDIT REPORT")
     
     for tier_name in ['pro', 'standard', 'lite', '[MISSING]']:
         tier_skills = tiers[tier_name]
         if not tier_skills:
             continue
         
-        label = {'pro': '[PRO]', 'standard': '[STD]', 'lite': '[LITE]', '[MISSING]': '[WARN]'}
-        print(f"\n{label[tier_name]} {tier_name.upper()} ({len(tier_skills)} skills)")
-        print("-" * 40)
+        tier_labels = {
+            'pro': '[PRO]',
+            'standard': '[STD]',
+            'lite': '[LITE]',
+            '[MISSING]': '[WARN]'
+        }
         
+        tier_style = get_tier_style(tier_name)
+        console.print(f"\n[{tier_style}]{tier_labels[tier_name]}[/{tier_style}] {tier_name.upper()} ({len(tier_skills)} skills)")
+        console.print("-" * 40)
+        
+        # Create table for this tier
+        table = make_table("Refs", "Scripts", "Name", "Files")
         for skill in sorted(tier_skills, key=lambda s: s.name):
             refs = 'R' if skill.has_references else '-'
             scripts = 'S' if skill.has_scripts else '-'
-            print(f"  {refs} {scripts} {skill.name:<30} ({skill.file_count} files)")
+            table.add_row(refs, scripts, skill.name, str(skill.file_count))
+        
+        console.print(table)
     
     # Summary
-    print("\n" + "=" * 60)
-    print("SUMMARY")
-    print("=" * 60)
-    print(f"  Total Skills: {len(skills)}")
-    print(f"  Pro:          {len(tiers['pro'])}")
-    print(f"  Standard:     {len(tiers['standard'])}")
-    print(f"  Lite:         {len(tiers['lite'])}")
+    header("SUMMARY")
+    success(f"Total Skills: {len(skills)}")
+    console.print(f"[green]Pro:[/green]          {len(tiers['pro'])}")
+    console.print(f"[blue]Standard:[/blue]     {len(tiers['standard'])}")
+    console.print(f"[yellow]Lite:[/yellow]         {len(tiers['lite'])}")
     
     missing_count = len(tiers['[MISSING]'])
     if missing_count > 0:
-        print(f"  Missing:      {missing_count}")
+        error(f"Missing:      {missing_count}")
         return 1
     
-    print("\nOK: all skills have tier defined")
+    success("OK: all skills have tier defined")
     return 0
 
 
