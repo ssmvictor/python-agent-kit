@@ -16,8 +16,13 @@ import argparse
 from pathlib import Path
 from typing import Dict, Any, List
 
+# Import console utilities
+from _console import console, success, header, RICH_AVAILABLE
+
+
 def get_project_root(path: str) -> Path:
     return Path(path).resolve()
+
 
 def analyze_package_json(root: Path) -> Dict[str, Any]:
     pkg_file = root / "package.json"
@@ -53,6 +58,7 @@ def analyze_package_json(root: Path) -> Dict[str, Any]:
     except Exception as e:
         return {"error": str(e)}
 
+
 def count_files(root: Path) -> Dict[str, int]:
     stats = {"created": 0, "modified": 0, "total": 0}
     # Simple count for now, comprehensive tracking would require git diff or extensive history
@@ -63,6 +69,7 @@ def count_files(root: Path) -> Dict[str, int]:
         stats["total"] += len(files)
         
     return stats
+
 
 def detect_features(root: Path) -> List[str]:
     # Heuristic: look at folder names in src/
@@ -77,31 +84,50 @@ def detect_features(root: Path) -> List[str]:
                 for child in p.iterdir():
                     if child.is_dir():
                         features.append(child.name)
-    return features[:10] # Limit to top 10
+    return features[:10]  # Limit to top 10
+
 
 def print_status(root: Path):
     info = analyze_package_json(root)
     stats = count_files(root)
     features = detect_features(root)
     
-    print("\n=== Project Status ===")
-    print(f"\nProject: {info.get('name', root.name)}")
-    print(f"Path: {root}")
-    print(f"Type: {', '.join(info.get('stack', ['Generic']))}")
-    print("Status: active")
+    header("PROJECT STATUS")
     
-    print("\nTech stack:")
+    if RICH_AVAILABLE:
+        from rich.panel import Panel
+        # Project info panel
+        console.print(Panel(
+            f"[bold]Project:[/bold] {info.get('name', root.name)}\n"
+            f"[bold]Path:[/bold] {root}\n"
+            f"[bold]Type:[/bold] {', '.join(info.get('stack', ['Generic']))}\n"
+            f"[bold]Status:[/bold] active",
+            title="Project Overview",
+            expand=False
+        ))
+    else:
+        # Fallback: simple text output
+        console.print(f"Project: {info.get('name', root.name)}")
+        console.print(f"Path: {root}")
+        console.print(f"Type: {', '.join(info.get('stack', ['Generic']))}")
+        console.print("Status: active")
+    
+    # Tech stack
+    console.print("\nTech stack:")
     for tech in info.get('stack', []):
-        print(f"  - {tech}")
+        console.print(f"  ● {tech}")
         
-    print(f"\nDetected modules/features ({len(features)}):")
-    for feat in features:
-        print(f"  - {feat}")
-    if not features:
-        print("   (No distinct feature modules detected)")
+    # Features
+    console.print(f"\nDetected modules/features ({len(features)}):")
+    if features:
+        for feat in features:
+            console.print(f"  • {feat}")
+    else:
+        console.print("   (No distinct feature modules detected)")
         
-    print(f"\nFiles: {stats['total']} total files tracked")
-    print("\n====================\n")
+    console.print(f"\nFiles: {stats['total']} total files tracked")
+    console.print()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Session Manager")
@@ -115,6 +141,7 @@ def main():
         print_status(root)
     elif args.command == "info":
         print(json.dumps(analyze_package_json(root), indent=2))
+
 
 if __name__ == "__main__":
     main()
