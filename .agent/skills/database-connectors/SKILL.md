@@ -1,6 +1,6 @@
 ---
 name: database-connectors
-description: Database connectivity principles. pyodbc, cx_Oracle, pymssql, connection pooling, retry patterns for enterprise databases.
+description: Database connectivity principles. pyodbc, oracledb, pymssql, connection pooling, retry patterns for enterprise databases.
 tier: standard
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
@@ -34,8 +34,7 @@ What database are you connecting to?
 │   └── pymssql (alternative, native)
 │
 ├── Oracle
-│   ├── oracledb (new, preferred)
-│   └── cx_Oracle (legacy, still works)
+│   └── oracledb (recommended)
 │
 ├── PostgreSQL
 │   ├── psycopg2 (sync, most common)

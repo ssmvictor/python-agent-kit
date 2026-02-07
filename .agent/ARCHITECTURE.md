@@ -83,7 +83,7 @@ Modular knowledge domains that agents can load on-demand based on task context.
 | Skill | Description |
 | ----- | ----------- |
 | `database-design` | Schema design, optimization |
-| `database-connectors` | pyodbc, cx_Oracle, connection pooling |
+| `database-connectors` | pyodbc, oracledb, connection pooling |
 
 
 ### On-Premise & Infrastructure
