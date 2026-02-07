@@ -28,33 +28,9 @@ from pathlib import Path
 from typing import List, Dict, Optional
 from datetime import datetime
 
-# ANSI colors
-class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
+# Import console utilities
+from _console import console, header, success, error, warning, step, make_table, status
 
-def print_header(text: str):
-    print(f"\n{Colors.BOLD}{Colors.CYAN}{'='*70}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.CYAN}{text.center(70)}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.CYAN}{'='*70}{Colors.ENDC}\n")
-
-def print_step(text: str):
-    print(f"{Colors.BOLD}{Colors.BLUE}[RUN] {text}{Colors.ENDC}")
-
-def print_success(text: str):
-    print(f"{Colors.GREEN}[OK] {text}{Colors.ENDC}")
-
-def print_warning(text: str):
-    print(f"{Colors.YELLOW}[WARN] {text}{Colors.ENDC}")
-
-def print_error(text: str):
-    print(f"{Colors.RED}[FAIL] {text}{Colors.ENDC}")
 
 # Complete verification suite
 VERIFICATION_SUITE = [
@@ -119,13 +95,14 @@ VERIFICATION_SUITE = [
     },
 ]
 
+
 def run_script(name: str, script_path: Path, project_path: str, url: Optional[str] = None) -> dict:
     """Run validation script"""
     if not script_path.exists():
-        print_warning(f"{name}: Script not found, skipping")
+        warning(f"{name}: Script not found, skipping")
         return {"name": name, "passed": True, "skipped": True, "duration": 0}
     
-    print_step(f"Running: {name}")
+    step(f"Running: {name}")
     start_time = datetime.now()
     
     # Build command
@@ -135,22 +112,23 @@ def run_script(name: str, script_path: Path, project_path: str, url: Optional[st
     
     # Run
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=600  # 10 minute timeout for slow checks
-        )
+        with status(f"Running {name}..."):
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=600  # 10 minute timeout for slow checks
+            )
         
         duration = (datetime.now() - start_time).total_seconds()
         passed = result.returncode == 0
         
         if passed:
-            print_success(f"{name}: PASSED ({duration:.1f}s)")
+            success(f"{name}: PASSED ({duration:.1f}s)")
         else:
-            print_error(f"{name}: FAILED ({duration:.1f}s)")
+            error(f"{name}: FAILED ({duration:.1f}s)")
             if result.stderr:
-                print(f"  {result.stderr[:300]}")
+                console.print(f"  {result.stderr[:300]}")
         
         return {
             "name": name,
@@ -163,19 +141,20 @@ def run_script(name: str, script_path: Path, project_path: str, url: Optional[st
     
     except subprocess.TimeoutExpired:
         duration = (datetime.now() - start_time).total_seconds()
-        print_error(f"{name}: TIMEOUT (>{duration:.0f}s)")
+        error(f"{name}: TIMEOUT (>{duration:.0f}s)")
         return {"name": name, "passed": False, "skipped": False, "duration": duration, "error": "Timeout"}
     
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
-        print_error(f"{name}: ERROR - {str(e)}")
+        error(f"{name}: ERROR - {str(e)}")
         return {"name": name, "passed": False, "skipped": False, "duration": duration, "error": str(e)}
 
+
 def print_final_report(results: List[dict], start_time: datetime):
-    """Print comprehensive final report"""
+    """Print comprehensive final report with Rich table"""
     total_duration = (datetime.now() - start_time).total_seconds()
     
-    print_header("FULL VERIFICATION REPORT")
+    header("FULL VERIFICATION REPORT")
     
     # Statistics
     total = len(results)
@@ -183,54 +162,63 @@ def print_final_report(results: List[dict], start_time: datetime):
     failed = sum(1 for r in results if not r["passed"] and not r.get("skipped"))
     skipped = sum(1 for r in results if r.get("skipped"))
     
-    print(f"Total Duration: {total_duration:.1f}s")
-    print(f"Total Checks: {total}")
-    print(f"{Colors.GREEN}Passed:  {passed}{Colors.ENDC}")
-    print(f"{Colors.RED}Failed:  {failed}{Colors.ENDC}")
-    print(f"{Colors.YELLOW}Skipped: {skipped}{Colors.ENDC}")
-    print()
+    console.print(f"Total Duration: {total_duration:.1f}s")
+    console.print(f"Total Checks: {total}")
+    success(f"Passed:  {passed}")
+    error(f"Failed:  {failed}")
+    warning(f"Skipped: {skipped}")
+    console.print()
     
-    # Category breakdown
-    print(f"{Colors.BOLD}Results by Category:{Colors.ENDC}")
+    # Results table with category breakdown
+    table = make_table("Category", "Status", "Check", "Duration")
     current_category = None
-    for r in results:
-        # Print category header if changed
-        if r.get("category") and r["category"] != current_category:
-            current_category = r["category"]
-            print(f"\n{Colors.BOLD}{Colors.CYAN}{current_category}:{Colors.ENDC}")
-        
-        # Print result
-        if r.get("skipped"):
-            status = f"{Colors.YELLOW}[SKIP]{Colors.ENDC}"
-        elif r["passed"]:
-            status = f"{Colors.GREEN}[OK]{Colors.ENDC}"
-        else:
-            status = f"{Colors.RED}[FAIL]{Colors.ENDC}"
-        
-        duration_str = f"({r.get('duration', 0):.1f}s)" if not r.get("skipped") else ""
-        print(f"  {status} {r['name']} {duration_str}")
     
-    print()
+    for r in results:
+        category = r.get("category", "Unknown")
+        
+        if r.get("skipped"):
+            status_text = "[SKIP]"
+            status_style = "yellow"
+        elif r["passed"]:
+            status_text = "[OK]"
+            status_style = "green"
+        else:
+            status_text = "[FAIL]"
+            status_style = "red"
+        
+        duration_str = f"{r.get('duration', 0):.1f}s" if not r.get("skipped") else "-"
+        
+        table.add_row(
+            category if category != current_category else "",
+            f"[{status_style}]{status_text}[/{status_style}]",
+            r['name'],
+            duration_str
+        )
+        current_category = category
+    
+    console.print(table)
+    console.print()
     
     # Failed checks detail
     if failed > 0:
-        print(f"{Colors.BOLD}{Colors.RED}FAILED CHECKS:{Colors.ENDC}")
+        error("FAILED CHECKS:")
         for r in results:
             if not r["passed"] and not r.get("skipped"):
-                print(f"\n{Colors.RED}- {r['name']}{Colors.ENDC}")
+                console.print(f"[red]- {r['name']}[/red]")
                 if r.get("error"):
                     error_preview = r["error"][:200]
-                    print(f"  Error: {error_preview}")
-        print()
+                    console.print(f"  Error: {error_preview}")
+        console.print()
     
     # Final verdict
     if failed > 0:
-        print_error(f"VERIFICATION FAILED - {failed} check(s) need attention")
-        print(f"\n{Colors.YELLOW}Tip: fix critical (security, lint) issues first{Colors.ENDC}")
+        error(f"VERIFICATION FAILED - {failed} check(s) need attention")
+        warning("Tip: fix critical (security, lint) issues first")
         return False
     else:
-        print_success("ALL CHECKS PASSED - Ready for deployment")
+        success("ALL CHECKS PASSED - Ready for deployment")
         return True
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -252,13 +240,13 @@ Examples:
     project_path = Path(args.project).resolve()
     
     if not project_path.exists():
-        print_error(f"Project path does not exist: {project_path}")
+        error(f"Project path does not exist: {project_path}")
         sys.exit(1)
     
-    print_header("ANTIGRAVITY KIT - FULL VERIFICATION SUITE")
-    print(f"Project: {project_path}")
-    print(f"URL: {args.url}")
-    print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    header("ANTIGRAVITY KIT - FULL VERIFICATION SUITE")
+    console.print(f"Project: {project_path}")
+    console.print(f"URL: {args.url}")
+    console.print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     start_time = datetime.now()
     results = []
@@ -276,7 +264,7 @@ Examples:
         if args.no_e2e and category == "E2E Testing":
             continue
         
-        print_header(category.upper())
+        header(category.upper())
         
         for name, script_path, required in suite["checks"]:
             script = project_path / script_path
@@ -286,7 +274,7 @@ Examples:
             
             # Stop on critical failure if flag set
             if args.stop_on_fail and required and not result["passed"] and not result.get("skipped"):
-                print_error(f"CRITICAL: {name} failed. Stopping verification.")
+                error(f"CRITICAL: {name} failed. Stopping verification.")
                 print_final_report(results, start_time)
                 sys.exit(1)
     
@@ -294,6 +282,7 @@ Examples:
     all_passed = print_final_report(results, start_time)
     
     sys.exit(0 if all_passed else 1)
+
 
 if __name__ == "__main__":
     main()

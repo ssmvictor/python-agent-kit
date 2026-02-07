@@ -23,35 +23,11 @@ import sys
 import subprocess
 import argparse
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Optional
 
-# ANSI colors for terminal output
-class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
+# Import console utilities
+from _console import console, header, success, error, warning, step, make_table, status
 
-def print_header(text: str):
-    print(f"\n{Colors.BOLD}{Colors.CYAN}{'='*60}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.CYAN}{text.center(60)}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.CYAN}{'='*60}{Colors.ENDC}\n")
-
-def print_step(text: str):
-    print(f"{Colors.BOLD}{Colors.BLUE}[RUN] {text}{Colors.ENDC}")
-
-def print_success(text: str):
-    print(f"{Colors.GREEN}[OK] {text}{Colors.ENDC}")
-
-def print_warning(text: str):
-    print(f"{Colors.YELLOW}[WARN] {text}{Colors.ENDC}")
-
-def print_error(text: str):
-    print(f"{Colors.RED}[FAIL] {text}{Colors.ENDC}")
 
 # Define priority-ordered checks
 CORE_CHECKS = [
@@ -67,9 +43,11 @@ PERFORMANCE_CHECKS = [
     ("Playwright E2E", ".agent/skills/webapp-testing/scripts/playwright_runner.py", False),
 ]
 
+
 def check_script_exists(script_path: Path) -> bool:
     """Check if script file exists"""
     return script_path.exists() and script_path.is_file()
+
 
 def run_script(name: str, script_path: Path, project_path: str, url: Optional[str] = None) -> dict:
     """
@@ -79,33 +57,34 @@ def run_script(name: str, script_path: Path, project_path: str, url: Optional[st
         dict with keys: name, passed, output, skipped
     """
     if not check_script_exists(script_path):
-        print_warning(f"{name}: Script not found, skipping")
+        warning(f"{name}: Script not found, skipping")
         return {"name": name, "passed": True, "output": "", "skipped": True}
     
-    print_step(f"Running: {name}")
+    step(f"Running: {name}")
     
     # Build command
     cmd = ["python", str(script_path), project_path]
     if url and ("lighthouse" in script_path.name.lower() or "playwright" in script_path.name.lower()):
         cmd.append(url)
     
-    # Run script
+    # Run script with status spinner
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300  # 5 minute timeout
-        )
+        with status(f"Running {name}..."):
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
+            )
         
         passed = result.returncode == 0
         
         if passed:
-            print_success(f"{name}: PASSED")
+            success(f"{name}: PASSED")
         else:
-            print_error(f"{name}: FAILED")
+            error(f"{name}: FAILED")
             if result.stderr:
-                print(f"  Error: {result.stderr[:200]}")
+                console.print(f"  Error: {result.stderr[:200]}")
         
         return {
             "name": name,
@@ -116,46 +95,54 @@ def run_script(name: str, script_path: Path, project_path: str, url: Optional[st
         }
     
     except subprocess.TimeoutExpired:
-        print_error(f"{name}: TIMEOUT (>5 minutes)")
+        error(f"{name}: TIMEOUT (>5 minutes)")
         return {"name": name, "passed": False, "output": "", "error": "Timeout", "skipped": False}
     
     except Exception as e:
-        print_error(f"{name}: ERROR - {str(e)}")
+        error(f"{name}: ERROR - {str(e)}")
         return {"name": name, "passed": False, "output": "", "error": str(e), "skipped": False}
 
+
 def print_summary(results: List[dict]):
-    """Print final summary report"""
-    print_header("CHECKLIST SUMMARY")
+    """Print final summary report with Rich table"""
+    header("CHECKLIST SUMMARY")
     
     passed_count = sum(1 for r in results if r["passed"] and not r.get("skipped"))
     failed_count = sum(1 for r in results if not r["passed"] and not r.get("skipped"))
     skipped_count = sum(1 for r in results if r.get("skipped"))
     
-    print(f"Total Checks: {len(results)}")
-    print(f"{Colors.GREEN}Passed:  {passed_count}{Colors.ENDC}")
-    print(f"{Colors.RED}Failed:  {failed_count}{Colors.ENDC}")
-    print(f"{Colors.YELLOW}Skipped: {skipped_count}{Colors.ENDC}")
-    print()
+    console.print(f"Total Checks: {len(results)}")
+    success(f"Passed:  {passed_count}")
+    error(f"Failed:  {failed_count}")
+    warning(f"Skipped: {skipped_count}")
+    console.print()
     
-    # Detailed results
+    # Detailed results in a table
+    table = make_table("Status", "Check Name")
     for r in results:
         if r.get("skipped"):
-            status = f"{Colors.YELLOW}[SKIP]{Colors.ENDC}"
+            status_text = "[SKIP]"
+            style = "yellow"
         elif r["passed"]:
-            status = f"{Colors.GREEN}[OK]{Colors.ENDC}"
+            status_text = "[OK]"
+            style = "green"
         else:
-            status = f"{Colors.RED}[FAIL]{Colors.ENDC}"
+            status_text = "[FAIL]"
+            style = "red"
         
-        print(f"{status} {r['name']}")
+        if hasattr(table, 'add_row'):
+            table.add_row(f"[{style}]{status_text}[/{style}]", r['name'])
     
-    print()
+    console.print(table)
+    console.print()
     
     if failed_count > 0:
-        print_error(f"{failed_count} check(s) FAILED - Please fix before proceeding")
+        error(f"{failed_count} check(s) FAILED - Please fix before proceeding")
         return False
     else:
-        print_success("All checks PASSED")
+        success("All checks PASSED")
         return True
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -176,17 +163,18 @@ Examples:
     project_path = Path(args.project).resolve()
     
     if not project_path.exists():
-        print_error(f"Project path does not exist: {project_path}")
+        error(f"Project path does not exist: {project_path}")
         sys.exit(1)
     
-    print_header("ANTIGRAVITY KIT - MASTER CHECKLIST")
-    print(f"Project: {project_path}")
-    print(f"URL: {args.url if args.url else 'Not provided (performance checks skipped)'}")
+    header("ANTIGRAVITY KIT - MASTER CHECKLIST")
+    console.print(f"Project: {project_path}")
+    url_info = args.url if args.url else "Not provided (performance checks skipped)"
+    console.print(f"URL: {url_info}")
     
     results = []
     
     # Run core checks
-    print_header("CORE CHECKS")
+    header("CORE CHECKS")
     for name, script_path, required in CORE_CHECKS:
         script = project_path / script_path
         result = run_script(name, script, str(project_path))
@@ -194,13 +182,13 @@ Examples:
         
         # If required check fails, stop
         if required and not result["passed"] and not result.get("skipped"):
-            print_error(f"CRITICAL: {name} failed. Stopping checklist.")
+            error(f"CRITICAL: {name} failed. Stopping checklist.")
             print_summary(results)
             sys.exit(1)
     
     # Run performance checks if URL provided
     if args.url and not args.skip_performance:
-        print_header("PERFORMANCE CHECKS")
+        header("PERFORMANCE CHECKS")
         for name, script_path, required in PERFORMANCE_CHECKS:
             script = project_path / script_path
             result = run_script(name, script, str(project_path), args.url)
@@ -210,6 +198,7 @@ Examples:
     all_passed = print_summary(results)
     
     sys.exit(0 if all_passed else 1)
+
 
 if __name__ == "__main__":
     main()
