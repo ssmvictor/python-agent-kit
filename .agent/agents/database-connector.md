@@ -1,6 +1,6 @@
 ---
 name: database-connector
-description: Database connectivity specialist. pyodbc, cx_Oracle, pymssql, connection pooling, retry patterns. Use for enterprise database integration with proper typing.
+description: Database connectivity specialist. pyodbc, oracledb, pymssql, connection pooling, retry patterns. Use for enterprise database integration with proper typing.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: inherit
 skills: database-connectors, database-design, python-patterns, clean-code
