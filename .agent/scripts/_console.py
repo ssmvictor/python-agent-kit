@@ -40,7 +40,7 @@ except ImportError:
         "Install it with:\n\n"
         "    pip install rich\n\n"
         "Or install all kit dependencies:\n\n"
-        "    pip install -r .agent/scripts/requirements.txt\n",
+        "    pip install -r .agent/scripts/requirements-core.txt\n",
         file=sys.stderr,
     )
     sys.exit(1)
