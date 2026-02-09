@@ -7,8 +7,9 @@ Orchestrates all validation scripts in priority order.
 Use this for incremental validation during development.
 
 Usage:
-    python .agent/scripts/checklist.py .                    # Run core checks
-    python .agent/scripts/checklist.py . --url <URL>        # Include performance checks
+    python .agent/scripts/checklist.py .                                  # Run STRICT profile (default)
+    python .agent/scripts/checklist.py . --profile strict --url <URL>      # STRICT + performance checks
+    python .agent/scripts/checklist.py . --profile lite                    # Required checks only (fast)
 
 Checks (priority order):
     P0: Security Scan (vulnerabilities, secrets)
@@ -18,6 +19,8 @@ Checks (priority order):
     P4: UX Audit (psychology, accessibility)
     P5: Performance (lighthouse + e2e; requires URL)
 """
+
+from __future__ import annotations
 
 import sys
 import subprocess
@@ -43,6 +46,13 @@ PERFORMANCE_CHECKS = [
     ("Lighthouse Audit", ".agent/skills/performance-profiling/scripts/lighthouse_audit.py", True),
     ("Playwright E2E", ".agent/skills/webapp-testing/scripts/playwright_runner.py", False),
 ]
+
+
+def select_core_checks(profile: str) -> List[tuple[str, str, bool]]:
+    """Select core checks based on execution profile."""
+    if profile == "lite":
+        return [check for check in CORE_CHECKS if check[2]]
+    return CORE_CHECKS
 
 
 def check_script_exists(script_path: Path) -> bool:
@@ -151,11 +161,18 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python .agent/scripts/checklist.py .                      # Core checks only
-  python .agent/scripts/checklist.py . --url http://localhost:3000  # Include performance
+  python .agent/scripts/checklist.py .                                     # STRICT profile (default)
+  python .agent/scripts/checklist.py . --profile strict --url http://localhost:3000
+  python .agent/scripts/checklist.py . --profile lite
         """
     )
     parser.add_argument("project", help="Project path to validate")
+    parser.add_argument(
+        "--profile",
+        choices=["lite", "strict", "full"],
+        default="strict",
+        help="Validation profile: lite (required checks only), strict (default), full (strict + prefer URL for performance)"
+    )
     parser.add_argument("--url", help="URL for performance checks (lighthouse, playwright)")
     parser.add_argument("--skip-performance", action="store_true", help="Skip performance checks even if URL provided")
     
@@ -169,14 +186,16 @@ Examples:
     
     header("ANTIGRAVITY KIT - MASTER CHECKLIST")
     console.print(f"Project: {project_path}")
+    console.print(f"Profile: {args.profile.upper()}")
     url_info = args.url if args.url else "Not provided (performance checks skipped)"
     console.print(f"URL: {url_info}")
-    
+
     results = []
-    
+    selected_core_checks = select_core_checks(args.profile)
+
     # Run core checks
     header("CORE CHECKS")
-    for name, script_path, required in CORE_CHECKS:
+    for name, script_path, required in selected_core_checks:
         script = project_path / script_path
         result = run_script(name, script, str(project_path))
         results.append(result)
@@ -187,13 +206,19 @@ Examples:
             print_summary(results)
             sys.exit(1)
     
-    # Run performance checks if URL provided
-    if args.url and not args.skip_performance:
+    # Run performance checks based on profile
+    if args.profile == "lite":
+        if args.url and not args.skip_performance:
+            warning("Profile LITE ignores performance checks. Use --profile strict or --profile full.")
+    elif args.url and not args.skip_performance:
         header("PERFORMANCE CHECKS")
         for name, script_path, required in PERFORMANCE_CHECKS:
             script = project_path / script_path
             result = run_script(name, script, str(project_path), args.url)
             results.append(result)
+    elif args.profile == "full" and not args.url:
+        error("Profile FULL requires --url for performance checks. Use --profile strict to skip them.")
+        sys.exit(1)
     
     # Print summary
     all_passed = print_summary(results)
