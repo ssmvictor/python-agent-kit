@@ -21,3 +21,6 @@ Thumbs.db
 # Agent cache
 .agent/scripts/__pycache__/
 .agent/skills/**/scripts/__pycache__/
+
+# Internal planning docs
+recomendacoes.md
