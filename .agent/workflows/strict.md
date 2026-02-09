@@ -29,10 +29,12 @@ This workflow is **opt‑in**. Do not apply it unless the user explicitly calls 
    - One paragraph: scope, risk areas, affected modules.
 
 2. **Run the kit checklist**
+   - Ensure STRICT dependencies are installed:
+     - `pip install -r .agent/scripts/requirements-strict.txt`
    - Core checks:
-     - `python .agent/scripts/checklist.py .`
+     - `python .agent/scripts/checklist.py . --profile strict`
    - If a URL is provided:
-     - `python .agent/scripts/checklist.py . --url <URL>`
+     - `python .agent/scripts/checklist.py . --profile strict --url <URL>`
 
 3. **Interpret results (priority order)**
    1) Security
@@ -67,10 +69,10 @@ This workflow is **opt‑in**. Do not apply it unless the user explicitly calls 
 |---|---|---|---|---|
 
 ### Verification
-- `python .agent/scripts/checklist.py .`
-- `python .agent/scripts/checklist.py . --url ...` (if used)
+- `pip install -r .agent/scripts/requirements-strict.txt`
+- `python .agent/scripts/checklist.py . --profile strict`
+- `python .agent/scripts/checklist.py . --profile strict --url ...` (if used)
 
 ### Next steps
 - ...
 ```
-
