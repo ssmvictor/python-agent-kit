@@ -48,6 +48,7 @@ VERIFICATION_SUITE = [
         "checks": [
             ("Lint Check", ".agent/skills/lint-and-validate/scripts/lint_runner.py", True),
             ("Type Coverage", ".agent/skills/lint-and-validate/scripts/type_coverage.py", False),
+            ("Rich Policy", ".agent/scripts/rich_policy_check.py", True),
         ]
     },
     

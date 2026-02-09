@@ -175,18 +175,18 @@ def main() -> int:
     
     # Validate inputs
     if not args.template.exists():
-        print(f"ERROR: Template not found: {args.template}")
+        error(f"Template not found: {args.template}")
         return 1
     
     if not args.data.exists():
-        print(f"ERROR: Data file not found: {args.data}")
+        error(f"Data file not found: {args.data}")
         return 1
     
     # Load data
     try:
         data = load_data(args.data)
     except Exception as e:
-        print(f"ERROR: Failed to load data: {e}")
+        error(f"Failed to load data: {e}")
         return 1
     
     # Determine template type
@@ -213,7 +213,7 @@ def main() -> int:
         print_result(result)
     
     else:
-        print(f"ERROR: Unsupported template type: {template_type}")
+        error(f"Unsupported template type: {template_type}")
         return 1
     
     return 0 if result.success else 1

@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 # Import console utilities
-from _console import console, success, header, RICH_AVAILABLE
+from _console import console, success, header
 
 
 def get_project_root(path: str) -> Path:
@@ -94,23 +94,16 @@ def print_status(root: Path):
     
     header("PROJECT STATUS")
     
-    if RICH_AVAILABLE:
-        from rich.panel import Panel
-        # Project info panel
-        console.print(Panel(
-            f"[bold]Project:[/bold] {info.get('name', root.name)}\n"
-            f"[bold]Path:[/bold] {root}\n"
-            f"[bold]Type:[/bold] {', '.join(info.get('stack', ['Generic']))}\n"
-            f"[bold]Status:[/bold] active",
-            title="Project Overview",
-            expand=False
-        ))
-    else:
-        # Fallback: simple text output
-        console.print(f"Project: {info.get('name', root.name)}")
-        console.print(f"Path: {root}")
-        console.print(f"Type: {', '.join(info.get('stack', ['Generic']))}")
-        console.print("Status: active")
+    from rich.panel import Panel
+    # Project info panel
+    console.print(Panel(
+        f"[bold]Project:[/bold] {info.get('name', root.name)}\n"
+        f"[bold]Path:[/bold] {root}\n"
+        f"[bold]Type:[/bold] {', '.join(info.get('stack', ['Generic']))}\n"
+        f"[bold]Status:[/bold] active",
+        title="Project Overview",
+        expand=False
+    ))
     
     # Tech stack
     console.print("\nTech stack:")
@@ -140,7 +133,7 @@ def main():
     if args.command == "status":
         print_status(root)
     elif args.command == "info":
-        print(json.dumps(analyze_package_json(root), indent=2))
+        console.print_json(json.dumps(analyze_package_json(root), indent=2))
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ import subprocess
 from pathlib import Path
 
 # Import console utilities
-from _console import console, success, error, warning, header, RICH_AVAILABLE
+from _console import console, success, error, warning, header
 
 
 AGENT_DIR = Path(".agent")
@@ -78,14 +78,11 @@ def start_server(port=3000):
     env["PORT"] = str(port)
     
     step_msg = f"Starting preview on port {port}..."
-    if RICH_AVAILABLE:
-        from rich.panel import Panel
-        console.print(Panel(
-            f"[bold]Starting preview server[/bold]\nPort: {port}",
-            expand=False
-        ))
-    else:
-        console.print(step_msg)
+    from rich.panel import Panel
+    console.print(Panel(
+        f"[bold]Starting preview server[/bold]\nPort: {port}",
+        expand=False
+    ))
     
     with open(LOG_FILE, "w") as log:
         process = subprocess.Popen(
@@ -143,31 +140,22 @@ def status_server():
     
     header("PREVIEW STATUS")
     
-    if RICH_AVAILABLE:
-        from rich.panel import Panel
-        if running:
-            console.print(Panel(
-                f"[bold green]Status:[/bold green] Running\n"
-                f"[bold]PID:[/bold] {pid}\n"
-                f"[bold]URL:[/bold] {url}\n"
-                f"[bold]Logs:[/bold] {LOG_FILE}",
-                title="Preview Server",
-                expand=False
-            ))
-        else:
-            console.print(Panel(
-                "[bold red]Status:[/bold red] Stopped",
-                title="Preview Server",
-                expand=False
-            ))
+    from rich.panel import Panel
+    if running:
+        console.print(Panel(
+            f"[bold green]Status:[/bold green] Running\n"
+            f"[bold]PID:[/bold] {pid}\n"
+            f"[bold]URL:[/bold] {url}\n"
+            f"[bold]Logs:[/bold] {LOG_FILE}",
+            title="Preview Server",
+            expand=False
+        ))
     else:
-        if running:
-            console.print("Status: running")
-            console.print(f"PID: {pid}")
-            console.print(f"URL: {url} (heuristic)")
-            console.print(f"Logs: {LOG_FILE}")
-        else:
-            console.print("Status: stopped")
+        console.print(Panel(
+            "[bold red]Status:[/bold red] Stopped",
+            title="Preview Server",
+            expand=False
+        ))
     console.print()
 
 
