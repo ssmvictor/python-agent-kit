@@ -13,6 +13,11 @@ The kit has two operating modes:
 | **LITE** (default) | Fast, direct, low ceremony | Small fixes, small refactors | Low |
 | **STRICT** | Validated, enterprise bar | Multi-file/risky work, pre-merge, production | High |
 
+## Non-negotiable defaults (all modes)
+
+- **OOP + strong typing** — Classes, type hints, `from __future__ import annotations`
+- **Rich for terminal output** — All CLI output via `_console.py` (`console.print`, `success`, `error`, `warning`, `header`, `step`, `make_table`). `print()` is ONLY allowed for `--json` machine-readable output paths.
+
 ---
 
 ## LITE mode (default)
