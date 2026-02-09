@@ -24,6 +24,7 @@ This skill also enforces two defaults:
 
 - Write solutions in an OOP style (classes for business logic, free functions mostly for wiring)
 - Use strict type hints (treat static typing as a build gate)
+- Use Rich for all terminal output via `_console.py` (`print()` only for `--json` paths)
 
 ---
 
@@ -38,6 +39,7 @@ Non-negotiables:
 - Avoid `Any` and untyped `dict`/`list`; prefer generics, `Protocol`, `TypedDict`, dataclasses, and Pydantic models
 - Validate at boundaries (I/O) and keep the domain core pure and typed
 - Treat static typing as a gate: run `pyright` (strict) or `mypy --strict` in CI
+- Use Rich for CLI output: import from `_console.py` (`console.print`, `success`, `error`, `warning`, `header`, `step`, `make_table`); bare `print()` only for `--json` machine-readable paths
 
 ---
 

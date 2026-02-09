@@ -90,11 +90,15 @@ class GeometryCalculator:
 
 
 if __name__ == "__main__":
+    from rich.console import Console
+
+    _console = Console()
+
     circle = Circle(radius=5.0)
     rectangle = Rectangle(width=4.0, height=6.0)
 
-    print(f"Circle area: {circle.area():.2f}")
-    print(f"Rectangle area: {rectangle.area():.2f}")
+    _console.print(f"Circle area: {circle.area():.2f}")
+    _console.print(f"Rectangle area: {rectangle.area():.2f}")
 
     larger, _smaller = GeometryCalculator.compare_areas(circle, rectangle)
-    print(f"Larger shape area: {larger.area():.2f}")
+    _console.print(f"Larger shape area: {larger.area():.2f}")

@@ -1064,4 +1064,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     result = generate_design_system(args.query, args.project_name, args.format)
-    print(result)
+    
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+    from _console import console
+    console.print(result)

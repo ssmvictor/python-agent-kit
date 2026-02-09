@@ -297,7 +297,7 @@ def main():
     result = checker.check()
     
     if args.format == "markdown":
-        print(checker.generate_markdown_report())
+        console.print(checker.generate_markdown_report())
     else:
         checker.generate_rich_report()
     
