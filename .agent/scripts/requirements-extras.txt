@@ -1,0 +1,10 @@
+# EXTRAS profile: optional capabilities (templating, search, data, orchestration)
+# NOTE: EXTRAS and STRICT are parallel branches from CORE.
+# To install everything, run both:
+#   pip install -r requirements-strict.txt -r requirements-extras.txt
+-r requirements-core.txt
+typer>=0.12
+jinja2>=3.1
+rank-bm25>=0.2
+polars>=1.0
+nox>=2024.4.15
