@@ -47,6 +47,20 @@ class Calculator:
         return a - b
 ```
 
+### 3b) Rich output (non-negotiable)
+
+All Python CLI output uses Rich via `_console.py`. Never use bare `print()` for human-readable output.
+
+```python
+from _console import console, success, error, warning
+
+success("Operation completed")
+error("Something failed")
+console.print("[bold]Status:[/bold] active")
+```
+
+`print()` is only allowed for `--json` machine-readable output paths.
+
 ### 4) Always include a commit suggestion (no blocking)
 
 At the end of a LITE response, output a Conventional Commits suggestion:

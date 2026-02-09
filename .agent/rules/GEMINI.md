@@ -37,6 +37,11 @@ trigger: always_on
     - **TypeScript:** `strict: true`, interfaces/types for all data structures, and no `any`.
     - **Other typed languages:** equivalent OOP + typing patterns.
     - **Exceptions:** HTML/CSS/JSON/config files are exempt (not programming languages).
+13. **Rich output mandate:** All Python CLI/terminal output MUST use Rich via `_console.py`:
+    - Import and use `console.print`, `success`, `error`, `warning`, `header`, `step`, `make_table` from `_console`.
+    - `print()` is ONLY allowed inside `--json` / machine-readable output guards.
+    - Never use bare `print()` for human-readable terminal output.
+    - This rule is enforced by `rich_policy_check.py` and is a gate in `checklist.py`.
 
 ## When to escalate into workflows
 

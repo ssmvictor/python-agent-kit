@@ -33,6 +33,7 @@ from _console import console, header, success, error, warning, step, make_table,
 CORE_CHECKS = [
     ("Security Scan", ".agent/skills/vulnerability-scanner/scripts/security_scan.py", True),
     ("Lint Check", ".agent/skills/lint-and-validate/scripts/lint_runner.py", True),
+    ("Rich Policy", ".agent/scripts/rich_policy_check.py", True),
     ("Schema Validation", ".agent/skills/database-design/scripts/schema_validator.py", False),
     ("Test Runner", ".agent/skills/testing-patterns/scripts/test_runner.py", False),
     ("UX Audit", ".agent/skills/frontend-design/scripts/ux_audit.py", False),
