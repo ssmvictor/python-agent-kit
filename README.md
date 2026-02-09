@@ -13,7 +13,7 @@ A modular system of agents, skills, workflows, and validation scripts for on-pre
 python .agent/scripts/kit_integrity_checker.py .agent
 
 # Full checklist (STRICT-style validation)
-python .agent/scripts/checklist.py .
+python .agent/scripts/checklist.py . --profile strict
 ```
 
 ---
@@ -40,20 +40,34 @@ Copy the contents of `.agent` to your user's Antigravity directory:
 | **Windows** | `C:\Users\<USERNAME>\.gemini\antigravity\` |
 | **Linux/macOS** | `~/.gemini/antigravity/` |
 
-### Dependencies (required)
+### Dependencies (profiles)
 
-The kit requires **Rich** for all terminal output:
+The kit now has 3 dependency profiles:
+
+| Profile | File | Use when |
+|---|---|---|
+| **CORE** | `.agent/scripts/requirements-core.txt` | Default/LITE usage with minimum footprint |
+| **STRICT** | `.agent/scripts/requirements-strict.txt` | Running enterprise checks (`/strict`, security, typed validation) |
+| **EXTRAS** | `.agent/scripts/requirements-extras.txt` | Optional capabilities per skill (templating, search, data, task orchestration) |
+
+Install commands:
 
 ```bash
-pip install -r .agent/scripts/requirements.txt
+# CORE (default)
+pip install -r .agent/scripts/requirements-core.txt
+
+# STRICT (includes CORE)
+pip install -r .agent/scripts/requirements-strict.txt
+
+# EXTRAS (includes CORE)
+pip install -r .agent/scripts/requirements-extras.txt
 ```
 
-**Rich** provides:
-- Colored tables and panels
-- Progress spinners
-- Better formatting for validation reports
+Backward compatibility:
 
-Rich is a **mandatory** dependency. The kit will fail fast with install instructions if Rich is not found. The only place `print()` is allowed is for machine-readable `--json` output paths.
+- `.agent/scripts/requirements.txt` now points to CORE (`-r requirements-core.txt`)
+
+`rich` remains the only mandatory baseline dependency. The kit fails fast with install instructions if Rich is missing. `print()` is only allowed for machine-readable `--json` output paths.
 
 ---
 

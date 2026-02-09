@@ -109,8 +109,9 @@ python .agent/skills/webapp-testing/scripts/playwright_runner.py .
 **Procedure:**
 1. Summarize the change (scope, risk areas, affected modules)
 2. Run the kit checklist:
-   - `python .agent/scripts/checklist.py .`
-   - If you have a URL: `python .agent/scripts/checklist.py . --url <URL>`
+   - `pip install -r .agent/scripts/requirements-strict.txt`
+   - `python .agent/scripts/checklist.py . --profile strict`
+   - If you have a URL: `python .agent/scripts/checklist.py . --profile strict --url <URL>`
 3. Interpret results (priority order):
    1. Security
    2. Lint / type checks

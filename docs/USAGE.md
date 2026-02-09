@@ -67,8 +67,11 @@ Examples:
 ### Typical validations
 
 ```bash
+# Install STRICT profile dependencies (includes CORE)
+pip install -r .agent/scripts/requirements-strict.txt
+
 # Full checklist (aggregates multiple validators)
-python .agent/scripts/checklist.py .
+python .agent/scripts/checklist.py . --profile strict
 
 # Security scan (can be run standalone)
 python .agent/skills/vulnerability-scanner/scripts/security_scan.py .
