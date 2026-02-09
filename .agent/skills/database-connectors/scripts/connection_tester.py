@@ -392,7 +392,7 @@ def main() -> int:
     password = args.password or os.environ.get("DB_PASSWORD", "")
     
     if not username or not password:
-        print("ERROR: Username and password required (use args or DB_USER/DB_PASSWORD env)")
+        error("Username and password required (use args or DB_USER/DB_PASSWORD env)")
         return 1
     
     # Run tests
