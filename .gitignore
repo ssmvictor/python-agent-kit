@@ -8,6 +8,10 @@ __pycache__/
 dist/
 build/
 
+# Node.js CLI
+node_modules/
+npm-debug.log*
+
 # IDE
 .vscode/
 .idea/
