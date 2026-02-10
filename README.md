@@ -3,14 +3,14 @@
 > Enterprise-focused capability expansion kit for AI agents
 
 A modular system of agents, skills, workflows, and validation scripts for on-premise Python development.
-Compatible with **Gemini/Claude Code** (native) and **OpenCode** (via `--target opencode`).
+Compatible with **Antigravity/Claude Code** (native) and **OpenCode** (via `--target opencode`).
 
 ---
 
 ## Quick install (npm)
 
 ```bash
-# Gemini / Claude Code (default)
+# Antigravity / Claude Code (default)
 npx @ssmvictor/python-agent-kit init
 
 # OpenCode
@@ -41,7 +41,7 @@ python .agent/scripts/checklist.py . --profile strict
 ### Option 0: npm CLI (recommended)
 
 ```bash
-# Current project (Gemini / Claude Code)
+# Current project (Antigravity / Claude Code)
 npx @ssmvictor/python-agent-kit init
 
 # Current project (OpenCode)
@@ -132,7 +132,7 @@ python-agent-kit init --target both
 
 | Target | Installs | Use with |
 |---|---|---|
-| `antigravity` (default) | `.agent/` | Gemini, Claude Code |
+| `antigravity` (default) | `.agent/` | Antigravity, Claude Code |
 | `opencode` | `.opencode/` + `AGENTS.md` | OpenCode |
 | `both` | `.agent/` + `.opencode/` + `AGENTS.md` | Multiple editors |
 
