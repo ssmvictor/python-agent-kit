@@ -1,6 +1,6 @@
 {
   "name": "@ssmvictor/python-agent-kit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "CLI tool to install Python Agent Kit templates",
   "main": "bin/index.js",
   "type": "module",

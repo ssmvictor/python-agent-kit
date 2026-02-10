@@ -3,21 +3,24 @@
 > Enterprise-focused capability expansion kit for AI agents
 
 A modular system of agents, skills, workflows, and validation scripts for on-premise Python development.
+Compatible with **Gemini/Claude Code** (native) and **OpenCode** (via `--target opencode`).
 
 ---
 
 ## Quick install (npm)
 
 ```bash
-# One-off usage
+# Gemini / Claude Code (default)
 npx @ssmvictor/python-agent-kit init
 
-# Global install
-npm install -g @ssmvictor/python-agent-kit
-python-agent-kit init
+# OpenCode
+npx @ssmvictor/python-agent-kit init --target opencode
+
+# Both platforms at once
+npx @ssmvictor/python-agent-kit init --target both
 ```
 
-This installs the `.agent` folder into your current project.
+This installs the `.agent` folder (and optionally `.opencode/` + `AGENTS.md`) into your current project.
 
 ---
 
@@ -38,8 +41,11 @@ python .agent/scripts/checklist.py . --profile strict
 ### Option 0: npm CLI (recommended)
 
 ```bash
-# Current project
+# Current project (Gemini / Claude Code)
 npx @ssmvictor/python-agent-kit init
+
+# Current project (OpenCode)
+npx @ssmvictor/python-agent-kit init --target opencode
 
 # Custom path
 npx @ssmvictor/python-agent-kit init --path ./my-project
@@ -50,6 +56,7 @@ You can also install globally:
 ```bash
 npm install -g @ssmvictor/python-agent-kit
 python-agent-kit init
+python-agent-kit init --target opencode
 ```
 
 ### Option 1: Local (per project)
@@ -106,8 +113,8 @@ Backward compatibility:
 | Command | Purpose |
 |---|---|
 | `python-agent-kit init` | Install `.agent` into a project |
-| `python-agent-kit update` | Replace existing `.agent` with latest templates |
-| `python-agent-kit status` | Check whether `.agent` is installed |
+| `python-agent-kit update` | Replace existing installation with latest templates |
+| `python-agent-kit status` | Check installation status (detects both `.agent` and `.opencode`) |
 
 Common options:
 
@@ -117,7 +124,26 @@ python-agent-kit init --path ./my-project
 python-agent-kit init --branch main
 python-agent-kit init --quiet
 python-agent-kit init --dry-run
+python-agent-kit init --target opencode
+python-agent-kit init --target both
 ```
+
+### Target platforms (`--target`)
+
+| Target | Installs | Use with |
+|---|---|---|
+| `antigravity` (default) | `.agent/` | Gemini, Claude Code |
+| `opencode` | `.opencode/` + `AGENTS.md` | OpenCode |
+| `both` | `.agent/` + `.opencode/` + `AGENTS.md` | Multiple editors |
+
+When using `--target opencode` or `--target both`, the CLI automatically:
+
+1. Downloads the `.agent/` source of truth from the repository
+2. Transforms agent frontmatter (CSV tools → YAML map, adds `mode: subagent`)
+3. Converts workflows to OpenCode commands (`.opencode/commands/`)
+4. Adapts skills (keeps `name` + `description`, already compatible)
+5. Copies scripts and rules with internal path references updated
+6. Generates an `AGENTS.md` root file with project-level instructions
 
 ---
 
@@ -134,6 +160,8 @@ See `docs/USAGE.md`.
 
 ## Structure
 
+### Antigravity (`.agent/`) — source of truth
+
 ```text
 .agent/
 ├── agents/     # Specialist agents
@@ -142,6 +170,21 @@ See `docs/USAGE.md`.
 ├── scripts/    # Validation + automation scripts
 └── rules/      # Global rules
 ```
+
+### OpenCode (`.opencode/`) — auto-generated via `--target opencode`
+
+```text
+.opencode/
+├── agents/     # Specialist agents (mode: subagent, tools as YAML map)
+├── commands/   # Slash commands (converted from workflows)
+├── skills/     # Domain skills (name + description frontmatter)
+├── scripts/    # Validation + automation scripts
+└── rules/      # Global rules
+AGENTS.md       # Project-level instructions (root file)
+```
+
+> `.opencode/` is **never** the source of truth. Always edit `.agent/` and re-run
+> `python-agent-kit init --target opencode` to regenerate.
 
 ---
 
