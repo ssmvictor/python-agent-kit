@@ -1,0 +1,45 @@
+{
+  "name": "@ssmvictor/python-agent-kit",
+  "version": "1.0.0",
+  "description": "CLI tool to install Python Agent Kit templates",
+  "main": "bin/index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "bin": {
+    "python-agent-kit": "bin/index.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssmvictor/python-agent-kit.git"
+  },
+  "homepage": "https://github.com/ssmvictor/python-agent-kit#readme",
+  "bugs": {
+    "url": "https://github.com/ssmvictor/python-agent-kit/issues"
+  },
+  "keywords": [
+    "python",
+    "agent",
+    "kit",
+    "cli",
+    "templates"
+  ],
+  "author": "ssmvictor",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "commander": "^12.1.0",
+    "giget": "^2.0.0",
+    "ora": "^8.2.0"
+  }
+}

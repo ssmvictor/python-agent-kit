@@ -6,7 +6,22 @@ A modular system of agents, skills, workflows, and validation scripts for on-pre
 
 ---
 
-## Quick start
+## Quick install (npm)
+
+```bash
+# One-off usage
+npx @ssmvictor/python-agent-kit init
+
+# Global install
+npm install -g @ssmvictor/python-agent-kit
+python-agent-kit init
+```
+
+This installs the `.agent` folder into your current project.
+
+---
+
+## Quick start (after install)
 
 ```bash
 # Validate kit integrity
@@ -19,6 +34,23 @@ python .agent/scripts/checklist.py . --profile strict
 ---
 
 ## Installation
+
+### Option 0: npm CLI (recommended)
+
+```bash
+# Current project
+npx @ssmvictor/python-agent-kit init
+
+# Custom path
+npx @ssmvictor/python-agent-kit init --path ./my-project
+```
+
+You can also install globally:
+
+```bash
+npm install -g @ssmvictor/python-agent-kit
+python-agent-kit init
+```
 
 ### Option 1: Local (per project)
 
@@ -68,6 +100,24 @@ Backward compatibility:
 - `.agent/scripts/requirements.txt` now points to CORE (`-r requirements-core.txt`)
 
 `rich` remains the only mandatory baseline dependency. The kit fails fast with install instructions if Rich is missing. `print()` is only allowed for machine-readable `--json` output paths.
+
+### npm CLI commands
+
+| Command | Purpose |
+|---|---|
+| `python-agent-kit init` | Install `.agent` into a project |
+| `python-agent-kit update` | Replace existing `.agent` with latest templates |
+| `python-agent-kit status` | Check whether `.agent` is installed |
+
+Common options:
+
+```bash
+python-agent-kit init --force
+python-agent-kit init --path ./my-project
+python-agent-kit init --branch main
+python-agent-kit init --quiet
+python-agent-kit init --dry-run
+```
 
 ---
 
